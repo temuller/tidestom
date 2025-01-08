@@ -48,9 +48,9 @@ class SubmitClassificationView(FormView):
 
     def form_valid(self, form):
         target = get_object_or_404(TidesTarget, id=self.kwargs['target_id'])
-        target.tidesclass = form.cleaned_data['tidesclass']
-        target.tidesclass_other = form.cleaned_data['tidesclass_other']
-        target.tidesclass_subclass = form.cleaned_data['tidesclass_subclass']
+        target.human_tidesclass = form.cleaned_data['tidesclass']
+        target.human_tidesclass_other = form.cleaned_data['tidesclass_other']
+        target.human_tidesclass_subclass = form.cleaned_data['tidesclass_subclass']
         target.save()
         return redirect('target_detail', pk=self.kwargs['target_id'])
 

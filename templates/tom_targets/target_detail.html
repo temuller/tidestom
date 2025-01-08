@@ -46,13 +46,33 @@
       {% target_data object %}
       <h3>Classifications</h3>
       <ul>
-        {% if object.tidesclass_subclass %}
-          {{ object.tidesclass }}
-          <ul>
-            <li>{{ object.tidesclass_subclass.sub_class }}</li>
-          </ul>
+        <li><strong>Auto Classification:</strong></li>
+        {% if object.auto_tidesclass %}
+          {{ object.auto_tidesclass }}
+          {% if object.auto_tidesclass_subclass %}
+            <ul>
+              <li>{{ object.auto_tidesclass_subclass.sub_class }}</li>
+            </ul>
+          {% endif %}
+          {% if object.auto_tidesclass_prob %}
+            <p>Probability: {{ object.auto_tidesclass_prob }}</p>
+          {% endif %}
         {% else %}
-          {{ object.tidesclass }}
+          <p>No Auto Classification</p>
+        {% endif %}
+      </ul>
+      
+      <ul>
+        <li><strong>Manual Classification:</strong></li>
+        {% if object.human_tidesclass %}
+          {{ object.human_tidesclass }}
+          {% if object.human_tidesclass_subclass %}
+            <ul>
+              <li>{{ object.human_tidesclass_subclass.sub_class }}</li>
+            </ul>
+          {% endif %}
+        {% else %}
+          <p>No Manual Classification</p>
         {% endif %}
       </ul>
       {% classification_form object.id %}
