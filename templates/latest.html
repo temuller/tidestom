@@ -5,17 +5,23 @@
 <div class="row">
   <div class="col-md-10">
     <h2>Latest Targets</h2>
-    <ul>
+    <div class="row">
       {% for target in targets %}
-        <li>
-          <a href="{% url 'target_detail' target.id %}">{{ target.name }} - {{ target.created }}</a>
-          <div>
-            <!--<a href="{% url 'target_detail' target.id %}"><img src="{% static 'plots/light_curve_' %}{{ target.id }}.png" alt="Light Curve for {{ target.name }}" width="200"></a>-->
-            <a href="{% url 'target_detail' target.id %}"><img src="{% static 'plots/spectrum_' %}{{ target.id }}.png" alt="Spectrum for {{ target.name }}" width="200"></a>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-4 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="{% url 'target_detail' target.id %}">{{ target.name }}</a>
+              </h5>
+              <p class="card-text">{{ target.created }}</p>
+              <a href="{% url 'target_detail' target.id %}">
+                <img src="{% static 'plots/spectrum_' %}{{ target.id }}.png" alt="Spectrum for {{ target.name }}" class="img-fluid">
+              </a>
+            </div>
           </div>
-        </li>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   </div>
 </div>
 {% endblock %}

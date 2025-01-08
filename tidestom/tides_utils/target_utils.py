@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from django.conf import settings
 from tom_targets.models import Target
+from django.core.management.base import BaseCommand
+from tom_dataproducts.models import DataProduct
+from tom_dataproducts.data_processor import run_data_processor
+from datetime import datetime
 
 def generate_light_curve_plot(target):
     # Generate the light curve plot for the target
@@ -44,3 +48,27 @@ def create_target(name, other_fields, update_existing=False,generate_plots=False
         generate_spectrum_plot(target,spec_fn)
     
     return target
+
+def add_spectrum_to_database(target, spectrum_file_path):
+    try:
+        if os.path.exists(spectrum_file_path):
+        
+            if os.path.basename(spectrum_file_path).startswith('l1_obs_joined_'):
+                tom_file_path = '/Users/pwise/4MOST/tides/tidestom/data/spectra/test/'+os.path.basename(spectrum_file_path)
+            else:
+                tom_file_path = '/Users/pwise/4MOST/tides/tidestom/data/spectra/'+os.path.basename(spectrum_file_path)
+            if not os.path.isfile(tom_file_path):
+                os.symlink(spectrum_file_path,tom_file_path)
+            print('Adding', target, f'{target.name}', tom_file_path)
+            data_product = DataProduct.objects.create(
+                target=target,
+                data_product_type='spectroscopy',
+                product_id=f'{target.name}'+datetime.now().strftime('%Y%m%d%H%M%S'),
+                data=tom_file_path
+            )
+            run_data_processor(data_product)
+            return f'Added spectrum for {target.name} to the database'
+        else:
+            return f'Spectrum file for {target.name} does not exist'
+    except Exception as e:
+        return f'Error adding spectrum for {target.name}: {e}'
