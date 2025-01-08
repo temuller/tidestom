@@ -14,3 +14,7 @@ def tides_target_data(target):
         'target': target,
         'extras': extras
     }
+
+@register.inclusion_tag('custom_code/partials/target_classifications.html')
+def target_classifications(target):
+    return {'target': target}

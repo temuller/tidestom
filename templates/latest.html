@@ -1,5 +1,5 @@
 {% extends 'tom_common/base.html' %}
-{% load bootstrap4 static %}
+{% load bootstrap4 static tides_targets_extras %}
 {% block title %}Latest Targets{% endblock %}
 {% block content %}
 <div class="row">
@@ -17,6 +17,7 @@
               <a href="{% url 'target_detail' target.id %}">
                 <img src="{% static 'plots/spectrum_' %}{{ target.id }}.png" alt="Spectrum for {{ target.name }}" class="img-fluid">
               </a>
+              {% target_classifications target %}
             </div>
           </div>
         </div>
