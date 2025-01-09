@@ -8,7 +8,8 @@ from django.urls import reverse_lazy
 from guardian.mixins import PermissionListMixin
 from tom_targets.models import Target
 from tom_targets.filters import TargetFilter
-   
+from tom_dataproducts.models import DataProduct
+from datetime import timedelta
 
 from custom_code.models import TidesTarget
 from custom_code.forms import TidesTargetForm
@@ -29,7 +30,11 @@ class LatestView(PermissionListMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         recent = timezone.now() - timedelta(days=28)
-        context['targets'] = Target.objects.filter(created__gte=recent)
+        # Filter targets that have associated spectra
+        context['targets'] = Target.objects.filter(
+            created__gte=recent,
+            dataproduct__data_product_type='spectroscopy'
+        ).distinct()
         return context
    
 class TargetDetailView(DetailView):

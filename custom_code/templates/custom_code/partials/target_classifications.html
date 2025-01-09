@@ -1,10 +1,10 @@
 {% if target.auto_tidesclass %}
   <p><strong>Auto Classification:</strong> {{ target.auto_tidesclass }}</p>
   {% if target.auto_tidesclass_subclass %}
-    <p><strong>Sub-class:</strong> {{ target.auto_tidesclass_subclass.sub_class }}</p>
+    <p><strong>Auto Sub-class:</strong> {{ target.auto_tidesclass_subclass.sub_class }}</p>
   {% endif %}
   {% if target.auto_tidesclass_prob %}
-    <p><strong>Probability:</strong> {{ target.auto_tidesclass_prob }}</p>
+    <p><strong>Probability of Auto Class:</strong> {{ target.auto_tidesclass_prob|floatformat:2 }}</p>
   {% endif %}
 {% else %}
   <p><strong>Auto Classification:</strong> None</p>
