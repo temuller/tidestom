@@ -31,6 +31,31 @@
       }
     }
   });   
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const checkbox = document.getElementById("spectralLineCheckbox");
+
+    // Listen for checkbox changes
+    checkbox.addEventListener("change", function() {
+      const isChecked = this.checked;
+
+      // Send the checkbox state to the server
+      fetch('/toggle-line/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token for Django
+        },
+        body: JSON.stringify({ showLine: isChecked })
+      }).then(response => {
+        if (!response.ok) {
+          console.error("Failed to update line visibility");
+        }
+      }).catch(error => {
+        console.error("Error:", error);
+      });
+    });
+  });
 </script>
 <div class="row">
   <div class="col-md-3">
@@ -113,7 +138,12 @@
       <div class="tab-pane active" id="spectroscopy">
         {% spectroscopy_for_target target %}
       </div>
-
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="spectralLineCheckbox">
+        <label class="form-check-label" for="spectralLineCheckbox">
+          Spectral line
+        </label>
+      </div>
       {% comments_enabled as comments_are_enabled %}
       <hr/>
       <h5>Comments</h5>
