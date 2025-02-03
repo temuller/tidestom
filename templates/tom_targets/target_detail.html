@@ -32,30 +32,6 @@
     }
   });   
 
-  document.addEventListener("DOMContentLoaded", function() {
-    const checkbox = document.getElementById("spectralLineCheckbox");
-
-    // Listen for checkbox changes
-    checkbox.addEventListener("change", function() {
-      const isChecked = this.checked;
-
-      // Send the checkbox state to the server
-      fetch('/toggle-line/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token for Django
-        },
-        body: JSON.stringify({ showLine: isChecked })
-      }).then(response => {
-        if (!response.ok) {
-          console.error("Failed to update line visibility");
-        }
-      }).catch(error => {
-        console.error("Error:", error);
-      });
-    });
-  });
 </script>
 <div class="row">
   <div class="col-md-3">
