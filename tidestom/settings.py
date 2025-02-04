@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'tom_observations',
     'tom_dataproducts',
     'custom_code',
+    'myplots',
 ]
 
 SITE_ID = 1
