@@ -35,43 +35,67 @@
 </script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-      setTimeout(() => {  // Delay execution to ensure Plotly is loaded
-          const plotDiv = document.querySelector("#spectroscopyPlot .js-plotly-plot");
-          console.log("PlotDiv:", plotDiv); // Debugging
+  document.addEventListener("DOMContentLoaded", function () {
+    requestAnimationFrame(() => {
+      const plotDiv = document.querySelector("#spectroscopyPlot .js-plotly-plot");
+      if (!plotDiv) {
+        console.error("🚨 Plot div not found! Check your selector.");
+        return;
+      }
 
-          const lines = {
-              "HbetaCheckbox": { x: 4862.68, color: "blue" },
-              "OIIIrCheckbox": { x: 5008.24, color: "red" },
-              "OIIIbCheckbox": { x: 4960.30, color: "black" }
-          };
+      const redshiftSlider = document.querySelector("#redshiftSlider");
+      const redshiftInput = document.querySelector("#redshiftInput");
 
-          Object.keys(lines).forEach(id => {
-              document.getElementById(id).addEventListener("change", function() {
-                  Plotly.relayout(plotDiv, { shapes: [] }).then(() => {
-                      let newShapes = [];
-                      Object.keys(lines).forEach(lineId => {
-                          if (document.getElementById(lineId).checked) {
-                              newShapes.push({
-                                  type: "line",
-                                  x0: lines[lineId].x,
-                                  x1: lines[lineId].x,
-                                  y0: 0,
-                                  y1: 1,
-                                  xref: "x",
-                                  yref: "paper",
-                                  line: { color: lines[lineId].color, width: 1 }
-                              });
-                          }
-                      });
-                      console.log("New Shapes:", newShapes); // Debugging
-                      Plotly.relayout(plotDiv, { shapes: newShapes });
-                  });
-              });
-          });
-      }, 1000); // Delay ensures the plot is fully loaded
+      if (!redshiftSlider || !redshiftInput) {
+        console.error("🚨 Redshift slider or input not found!");
+        return;
+      }
+
+      const lines = {
+        "HydrogenCheckbox": { x: [4102.9351, 4341.69, 4862.68, 6564.61], color: "blue" },
+        "OIIICheckbox": { x: [4960.30, 5008.24], color: "red" }
+      };
+
+      function updateLines(z) {
+        const newShapes = Object.entries(lines)
+          .filter(([id]) => document.getElementById(id)?.checked)
+          .flatMap(([_, { x, color }]) => 
+            x.map(value => ({
+              type: "line",
+              x0: value * (1 + z),
+              x1: value * (1 + z),
+              y0: 0,
+              y1: 1,
+              xref: "x",
+              yref: "paper",
+              line: { color, width: 1 }
+            }))
+          );
+
+        console.log("Updating shapes:", newShapes);
+        Plotly.relayout(plotDiv, { shapes: newShapes });
+      }
+
+      function handleRedshiftChange(event) {
+        let z = parseFloat(event.target.value);
+        if (isNaN(z) || z < 0 || z > 10) return;  // Validate input range
+
+        redshiftSlider.value = z;  // Sync slider
+        redshiftInput.value = z.toFixed(2);  // Format input box
+        updateLines(z);
+      }
+
+      // Attach event listeners
+      redshiftSlider.addEventListener("input", handleRedshiftChange);
+      redshiftInput.addEventListener("change", handleRedshiftChange); // Allows manual input
+
+      Object.keys(lines).forEach(id => {
+        document.getElementById(id)?.addEventListener("change", () => updateLines(parseFloat(redshiftSlider.value)));
+      });
+    });
   });
 </script>
+
 
 
 
@@ -157,26 +181,19 @@
       <div class="tab-pane active" id="spectroscopy">
         {% target_spectroscopy target %}
       </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="HbetaCheckbox">
-        <label class="form-check-label" for="HbetaCheckbox" style="color: blue;">
-          Hβ (4862.68 Å)
-        </label>
+      <div class="checkbox-container">
+        <label><input type="checkbox" id="HydrogenCheckbox"> <span style="color: blue;">H</span></label>
+        <label><input type="checkbox" id="OIIICheckbox"> <span style="color: red;">[O III]</span></label>                     
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
       </div>
       
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="OIIIrCheckbox">
-        <label class="form-check-label" for="OIIIrCheckbox" style="color: red;">
-          [OIII]r (5008.24 Å)
-        </label>
-      </div>
-      
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="OIIIbCheckbox">
-        <label class="form-check-label" for="OIIIbCheckbox" style="color: black;">
-          [OIII]b (4960.30 Å)
-        </label>
-      </div>      
       {% comments_enabled as comments_are_enabled %}
       <hr/>
       <h5>Comments</h5>
@@ -193,6 +210,11 @@
     {% if object.type == 'SIDEREAL' %}
     {% aladin_finderchart object %}
     {% endif %}
+    <div>
+      <label for="redshiftSlider">Redshift (z): </label>
+      <input type="range" id="redshiftSlider" min="0" max="10" step="0.01" value="0">
+      <input type="number" id="redshiftInput" min="0" max="10" step="0.01" value="0" style="width: 60px; text-align: center;">
+    </div>  
   </div>
 </div>
 {% endblock %}
