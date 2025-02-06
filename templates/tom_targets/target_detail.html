@@ -6,97 +6,76 @@
 {% endblock %}
 {% block content %}
 <script>
-  // Function to update the URL.
-  const updateUrlWithTab = (tabId) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', tabId);
-    history.replaceState({}, document.title, url.toString());
-  };
+document.addEventListener("DOMContentLoaded", function () {
+    // Function to update the URL with the selected tab.
+    const updateUrlWithTab = (tabId) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tabId);
+        history.replaceState({}, document.title, url.toString());
+    };
 
-  document.addEventListener("DOMContentLoaded", function() {
-    // Listen for tab changes.
+    // Tab change event listener.
     document.querySelectorAll('#tabs .nav-link').forEach(tab => {
-      tab.addEventListener('click', function() {
-        updateUrlWithTab(this.id.replace('-tab', ''));
-      });
+        tab.addEventListener('click', () => updateUrlWithTab(tab.id.replace('-tab', '')));
     });
 
-    // Initial tab selection from URL.
+    // Select initial tab based on the URL.
     const tabQuery = new URL(window.location.href).searchParams.get('tab');
     if (tabQuery) {
-      const activeTab = '#' + tabQuery;
-      const tabElement = document.querySelector(`a[href="${activeTab}"]`);
-      if (tabElement) {
-        tabElement.click();
-      }
+        document.querySelector(`a[href="#${tabQuery}"]`)?.click();
     }
-  });   
 
-</script>
+    // Redshift handling and plot updates.
+    const plotDiv = document.querySelector("#spectroscopyPlot .js-plotly-plot");
+    const redshiftSlider = document.querySelector("#redshiftSlider");
+    const redshiftInput = document.querySelector("#redshiftInput");
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    requestAnimationFrame(() => {
-      const plotDiv = document.querySelector("#spectroscopyPlot .js-plotly-plot");
-      if (!plotDiv) {
-        console.error("🚨 Plot div not found! Check your selector.");
-        return;
-      }
-
-      const redshiftSlider = document.querySelector("#redshiftSlider");
-      const redshiftInput = document.querySelector("#redshiftInput");
-
-      if (!redshiftSlider || !redshiftInput) {
-        console.error("🚨 Redshift slider or input not found!");
-        return;
-      }
-
-      const lines = {
+    const lines = {
         "HydrogenCheckbox": { x: [4102.9351, 4341.69, 4862.68, 6564.61], color: "blue" },
         "OIIICheckbox": { x: [4960.30, 5008.24], color: "red" }
-      };
+    };
 
-      function updateLines(z) {
+    function updateLines(z) {
         const newShapes = Object.entries(lines)
-          .filter(([id]) => document.getElementById(id)?.checked)
-          .flatMap(([_, { x, color }]) => 
-            x.map(value => ({
-              type: "line",
-              x0: value * (1 + z),
-              x1: value * (1 + z),
-              y0: 0,
-              y1: 1,
-              xref: "x",
-              yref: "paper",
-              line: { color, width: 1 }
-            }))
-          );
-
-        console.log("Updating shapes:", newShapes);
+            .filter(([id]) => document.getElementById(id)?.checked)
+            .flatMap(([_, { x, color }]) => x.map(value => ({
+                type: "line", x0: value * (1 + z), x1: value * (1 + z),
+                y0: 0, y1: 1, xref: "x", yref: "paper", line: { color, width: 1 }
+            })));
         Plotly.relayout(plotDiv, { shapes: newShapes });
-      }
+    }
 
-      function handleRedshiftChange(event) {
-        let z = parseFloat(event.target.value);
-        if (isNaN(z) || z < 0 || z > 10) return;  // Validate input range
-
-        redshiftSlider.value = z;  // Sync slider
-        redshiftInput.value = z.toFixed(2);  // Format input box
+    function handleRedshiftChange(event) {
+        const z = parseFloat(event.target.value);
+        if (isNaN(z) || z < 0 || z > 10) return;  // Validate redshift range
+        redshiftSlider.value = z;
+        redshiftInput.value = z.toFixed(2);
         updateLines(z);
-      }
+    }
 
-      // Attach event listeners
-      redshiftSlider.addEventListener("input", handleRedshiftChange);
-      redshiftInput.addEventListener("change", handleRedshiftChange); // Allows manual input
+    // Attach event listeners.
+    redshiftSlider.addEventListener("input", handleRedshiftChange);
+    redshiftInput.addEventListener("change", handleRedshiftChange);
+    Object.keys(lines).forEach(id => document.getElementById(id)?.addEventListener("change", () => updateLines(parseFloat(redshiftSlider.value))));
 
-      Object.keys(lines).forEach(id => {
-        document.getElementById(id)?.addEventListener("change", () => updateLines(parseFloat(redshiftSlider.value)));
+    // Show/hide spectroscopy elements based on active tab.
+    const toggleSpectroscopyElements = () => {
+        const isActive = document.getElementById("spectroscopy-tab").classList.contains("active");
+        document.querySelectorAll(".spectroscopy-only").forEach(el => {
+          if (isActive) {
+            el.classList.remove('d-none');
+          } else {
+            el.classList.add('d-none');
+          }
       });
+    };
+    document.querySelectorAll(".nav-link").forEach(tab => {
+        tab.addEventListener("click", () => setTimeout(toggleSpectroscopyElements, 50));
     });
-  });
+
+    toggleSpectroscopyElements();  // Run once on page load
+});
 </script>
-
-
 
 
 
@@ -181,18 +160,25 @@
       <div class="tab-pane active" id="spectroscopy">
         {% target_spectroscopy target %}
       </div>
-      <div class="checkbox-container">
+      <!-- Checkboxes -->
+      <div class="checkbox-container spectroscopy-only">
         <label><input type="checkbox" id="HydrogenCheckbox"> <span style="color: blue;">H</span></label>
         <label><input type="checkbox" id="OIIICheckbox"> <span style="color: red;">[O III]</span></label>                     
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
-        <label><input type="checkbox" id="CustomLineCheckbox"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox1"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+        <label><input type="checkbox" id="CustomLineCheckbox2"> Test Line</label>
+
       </div>
+
       
       {% comments_enabled as comments_are_enabled %}
       <hr/>
@@ -210,11 +196,12 @@
     {% if object.type == 'SIDEREAL' %}
     {% aladin_finderchart object %}
     {% endif %}
-    <div>
+    <!-- Redshift Slider -->
+    <div class="spectroscopy-only">
       <label for="redshiftSlider">Redshift (z): </label>
       <input type="range" id="redshiftSlider" min="0" max="10" step="0.01" value="0">
       <input type="number" id="redshiftInput" min="0" max="10" step="0.01" value="0" style="width: 60px; text-align: center;">
-    </div>  
+    </div>
   </div>
 </div>
 {% endblock %}

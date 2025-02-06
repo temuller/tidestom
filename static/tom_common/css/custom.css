@@ -41,13 +41,15 @@ a:hover {
     margin: 0 auto;   /* Centers the container */
 }
 
-.checkbox-container {
+.checkbox-container.spectroscopy-only {
     display: grid;
-    grid-template-columns: repeat(5, auto); /* Two checkboxes per row */
+    grid-template-columns: repeat(5, auto); /* Five checkboxes per row */
     gap: 1px; /* Spacing between checkboxes */
-  }
+}
+
+.d-none {
+    display: none !important;  /* Make sure elements are hidden */
+}
+
   
-/* Override padding for content class */
-/* body .content {
-    padding: -2rem -2rem !important;  /* Remove padding */
-/* } */ 
+
