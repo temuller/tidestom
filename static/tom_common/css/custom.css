@@ -43,7 +43,7 @@ a:hover {
 
 .checkbox-container.spectroscopy-only {
     display: grid;
-    grid-template-columns: repeat(5, auto); /* Five checkboxes per row */
+    grid-template-columns: repeat(8, auto); /* Five checkboxes per row */
     gap: 1px; /* Spacing between checkboxes */
 }
 
