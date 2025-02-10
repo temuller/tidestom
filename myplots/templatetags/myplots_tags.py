@@ -43,13 +43,8 @@ def target_spectroscopy(context, target, dataproduct=None):
     # Create a figure
     fig = go.Figure(data=plot_data)
 
-    # Add a vertical dashed line
-    # fig.add_vline(x=2, line=dict(color = 'red', width=1), opacity=0.8, name="toggle-line")
-    # toggle_line = go.Scatter(x=[2, 2], y=[-500,500], mode="lines", line=dict(color="red", width=1), name="toggle-line", visible="legendonly")
-    # fig.add_trace(toggle_line)
-
     fig.update_layout(autosize=True, 
-                      xaxis_title='Wavelength [Å] ',
+                      xaxis_title='Observed Wavelength [Å] ',
                       yaxis_title='Flux',
                       shapes=[])
 
