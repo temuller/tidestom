@@ -46,6 +46,8 @@ def target_spectroscopy(context, target, dataproduct=None):
     fig.update_layout(autosize=True, 
                       xaxis_title='Observed Wavelength [Å] ',
                       yaxis_title='Flux',
+                      xaxis = dict(showticklabels=True, ticks='outside', linewidth=2),
+                      yaxis = dict(showticklabels=True, ticks='outside', linewidth=2),
                       shapes=[])
 
     return {
