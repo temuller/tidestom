@@ -29,7 +29,7 @@ class LatestView(PermissionListMixin, FilterView):
     ordering = ['-created']
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        recent = timezone.now() - timedelta(days=28)
+        recent = timezone.now() - timedelta(days=356)
         # Filter targets that have associated spectra
         context['targets'] = Target.objects.filter(
             created__gte=recent,

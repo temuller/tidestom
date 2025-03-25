@@ -51,7 +51,7 @@ class TidesTarget(BaseTarget):
     human_tidesclass = models.CharField(max_length=50, choices=TIDES_CLASS_CHOICES, verbose_name='Human TiDES Classification', blank=True, null=True)
     human_tidesclass_other = models.CharField(max_length=100, blank=True, null=True, verbose_name='Human TiDES Classification (Other)')
     human_tidesclass_subclass = models.ForeignKey(TidesClassSubClass, on_delete=models.SET_NULL, blank=True, null=True, related_name='human_subclass', verbose_name='Human TiDES Sub-classification')
-
+    
     class Meta:
         verbose_name = "target"
         permissions = (
