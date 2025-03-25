@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'tom_dataproducts',
     'custom_code',
     'tidestom'
+    'myplots',
 ]
 
 SITE_ID = 1

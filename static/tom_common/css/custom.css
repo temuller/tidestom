@@ -2,7 +2,7 @@
  * Adapted from Bootstrap v4.6.2 (https://getbootstrap.com/)
  * Set defaults for custom css
  */
-:root {
+ :root {
     --primary: #007bff;
     --secondary: #6c757d;
     --success: #28a745;
@@ -19,6 +19,9 @@ body {
     line-height: 1.5;
     color: #212529;
     background-color: #fff;
+    margin-left: -10rem;
+    padding-left: 0;
+    padding-top: 2rem;
 }
 
 a {
@@ -30,3 +33,23 @@ a:hover {
     color: #0056b3;
     text-decoration: underline;
 }
+
+.light-curve {
+    width: 100%;      /* The container takes the full width of its parent */
+    height: auto;     /* The height adjusts based on the width (aspect ratio) */
+    max-width: 100%;  /* Ensures it doesn’t exceed the parent container's width */
+    margin: 0 auto;   /* Centers the container */
+}
+
+.checkbox-container.spectroscopy-only {
+    display: grid;
+    grid-template-columns: repeat(8, auto); /* Five checkboxes per row */
+    gap: 1px; /* Spacing between checkboxes */
+}
+
+.d-none {
+    display: none !important;  /* Make sure elements are hidden */
+}
+
+  
+
