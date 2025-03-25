@@ -42,10 +42,36 @@ a:hover {
 }
 
 .checkbox-container.spectroscopy-only {
-    display: grid;
-    grid-template-columns: repeat(8, auto); /* Five checkboxes per row */
-    gap: 1px; /* Spacing between checkboxes */
+    display: flex;
+    flex-direction: column;  /* Stack groups vertically */
+    gap: 20px;  /* Adds vertical space between the groups */
+    width: 100%;
 }
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;  /* Ensure the group takes up the full width */
+}
+
+.checkbox-group h5 {
+    margin-bottom: 10px;  /* Adds space below the group title */
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); /* Adjust number of columns for the grid */
+    gap: 5px;  /* Adds space between checkboxes */
+}
+
+.checkbox-group label {
+    display: block;  /* Ensures each checkbox is on its own line */
+    margin-bottom: 5px;  /* Adds space between checkboxes */
+}
+
+
+
 
 .d-none {
     display: none !important;  /* Make sure elements are hidden */
