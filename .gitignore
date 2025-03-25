@@ -6,3 +6,5 @@ data/
 *pycache*
 static/plots/
 db*
+*.ipynb_checkpoints/
+*.log
