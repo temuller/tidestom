@@ -7,14 +7,35 @@
     <!-- BEGIN MODIFIED CONTENT -->
 
     <h2 class="text-center">The Time Domain Extragalactic Survey</h2>
-    <p class="text-center"><img src="{% static 'tom_common/img/logo-color.png' %}" style="max-width: 400px;" alt="TiDES Logo"></p>
-    <h3>The industralisation of transient spectroscopy.</h3>
+    <p class="text-center"><img src="{% static 'tom_common/img/logo-color.png' %}" class="img-fluid mx-auto"></p>
+    <p>The industralisation of transient spectroscopy.</p>
 
     <!-- END MODIFIED CONTENT -->
-   
-    
-   
-    
+    <h3>Next steps</h3>
+    <ul>
+      <li>
+        Check out the <a href="https://tom-toolkit.readthedocs.io/en/stable/" title="TOM Toolkit home page" target="_blank">TOM
+        Toolkit homepage</a> for the latest news, downloads and documentation.
+      </li>
+      <li>
+        <a href="{% url 'targets:create' %}" title="Create Target">Add your first target</a>.
+      </li>
+      <li>
+        Customize this page by editing the
+        <code>templates/tom_common/index.html</code> file or by editing your
+        project's <code>urls.py</code>.
+      </li>
+      <li>
+        Take a look at some <a href="https://tom-toolkit.readthedocs.io/en/stable/customization/index.html" target="_blank">common first customizations</a>.
+      </li>
+    </ul>
+    <h3>Other Resources</h3>
+    <ul>
+      <li>The official <a href="https://www.djangoproject.com/" target="_blank">Django documentation</a>.</li>
+      <li>The official <a href="http://www.astropy.org/" target="_blank">Astropy documentation</a>.</li>
+    </ul>
+    <hr>
+    <p><em><a target="_blank" href="https://github.com/TOMToolkit/tom_base">TOM Toolkit</a> version {{ version }}</em></p>
   </div>
   <div class="col-md-4">
     <div class="card">

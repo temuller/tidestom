@@ -1,12 +1,11 @@
 logs/
-data/
 env
 tom_env/
 data/
 *pycache*
 static/plots/
 db*
-*.ipynb_checkpoints/
 *.log
 *.DS_Store*
 *ipynb_checkpoints*
+
