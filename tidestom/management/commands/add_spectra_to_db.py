@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from datetime import datetime
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from tidestom.models import Target, DataProduct
 from tidestom.utils import generate_spectrum_plot, add_spectrum_to_database
 
@@ -34,10 +35,15 @@ class Command(BaseCommand):
             logging.error("Either --mock or --pipeline option must be specified")
 
     def add_spectra_from_mock_db(self):
-        dbdf = pd.read_csv('/Users/pwise/4MOST/tides/testdata/mock_DB.csv', index_col=0)
+        target_csv_path = os.path.join(settings.TEST_DIR, "mock_DB.csv")
+
+        if not os.path.exists(target_csv_path):
+            self.stdout.write(self.style.ERROR(f"Target CSV file not found at {target_csv_path}"))
+            return
+        dbdf = pd.read_csv(target_csv_path, index_col=0)
         targets = Target.objects.all()
         for target in targets:
-            spectrum_file_path = f'/Users/pwise/4MOST/tides/testdata/spec_simulations/sims/l1_obs_joined_{target.name}.fits'
+            spectrum_file_path = os.path.join(settings.TEST_DIR,f'spec_simulations/sims/l1_obs_joined_{target.name}.fits')
             if os.path.exists(spectrum_file_path):
                 # Check if the spectrum already exists in the database
                 spectrum_exists = DataProduct.objects.filter(target=target, data=spectrum_file_path).exists()

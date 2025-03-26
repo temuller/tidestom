@@ -64,7 +64,42 @@ If you want to contribute to the development of this project, follow these steps
    Go to the original repository on GitHub and open a pull request to merge your changes into the main branch.
 
 ---
+## Setting Up Test Data
 
+To use the Tides TOM with test data, follow these steps:
+
+1. **Download the test data**:  
+   Download the test data from the following link:  
+   [Test Data](https://drive.google.com/file/d/1HxkHGde8RTyMZWAeSsQjQqdPiWQTlu3s/view?usp=sharing)
+
+2. **Unzip the test data**:  
+   Extract the downloaded file to a directory of your choice:
+    ```bash
+    tar -xvf /path/to/downloaded/file.tar.gz -C /path/to/extract/
+    ```
+
+3. **Set the test directory path**:  
+   Add the test directory path to your environment by editing the `tom_env/bin/activate` script:
+    ```bash
+    nano /path/to/tom_env/bin/activate
+    ```
+
+   Add the following line to the end of the file:
+    ```bash
+    export TIDES_TEST_DIR="/path/to/extracted/test/data"
+    ```
+
+   Save the file and exit. Then, source the environment again to apply the changes:
+    ```bash
+    source /path/to/tom_env/bin/activate
+    ```
+
+   Verify that the environment variable is set:
+    ```bash
+    echo $TIDES_TEST_DIR
+    ```
+
+---
 ## Running the Server
 
 To run the Tides TOM server, follow these steps:
@@ -90,6 +125,25 @@ To run the Tides TOM server, follow these steps:
     ```
 
 You should now see the Tides TOM application running locally.
+
+---
+## Loading Test Data into the Database
+
+Once the test data is set up, you can load it into the database using the following commands:
+
+1. **Add targets**:  
+   Run the following command to add targets from the test data:
+    ```bash
+    python manage.py add_targets
+    ```
+
+2. **Add spectra**:  
+   Run the following command to add spectra from the test data:
+    ```bash
+    python manage.py add_spectra_to_db --mock
+    ```
+
+These commands will populate the database with the test targets and spectra.
 
 ---
 

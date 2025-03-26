@@ -3,6 +3,7 @@ import pandas as pd
 from django.core.management.base import BaseCommand
 from tom_targets.models import Target
 from tidestom.tides_utils.target_utils import create_target
+from django.conf import settings
 ### TODO: WRITE CORRECT DIRECTORY IN HER, USING AN ENVIRONMENT VARIABLE
 
 
@@ -12,7 +13,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         #directory = os.environ['TARGET_DB']
-        dbdf = pd.read_csv('/Users/pwise/4MOST/tides/testdata/mock_DB.csv', index_col=0)   
+        target_csv_path = os.path.join(settings.TEST_DIR, "mock_DB.csv")
+
+        if not os.path.exists(target_csv_path):
+            self.stdout.write(self.style.ERROR(f"Target CSV file not found at {target_csv_path}"))
+            return
+        dbdf = pd.read_csv(target_csv_path, index_col=0)   
         for index, row in dbdf.iterrows(): 
             name=index
             if row['OBS_STATUS_4MOST']:  # Check if the target has been observed by 4MOST
