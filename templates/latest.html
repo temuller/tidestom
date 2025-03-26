@@ -1,0 +1,28 @@
+{% extends 'tom_common/base.html' %}
+{% load bootstrap4 static tides_targets_extras %}
+{% block title %}Latest Targets{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-10">
+    <h2>Latest Targets</h2>
+    <div class="row">
+      {% for target in targets %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-4 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="{% url 'target_detail' target.id %}">{{ target.name }}</a>
+              </h5>
+              <p class="card-text">{{ target.created }}</p>
+              <a href="{% url 'target_detail' target.id %}">
+                <img src="{% static 'plots/spectrum_' %}{{ target.id }}.png" alt="Spectrum for {{ target.name }}" class="img-fluid">
+              </a>
+              {% target_classifications target %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

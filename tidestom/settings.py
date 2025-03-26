@@ -17,7 +17,7 @@ import tempfile
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+TEST_DIR = os.environ.get('TIDES_TEST_DIR')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -44,10 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django_extensions',
+     'debug_toolbar',
     'guardian',
     'tom_common',
     'django_comments',
     'bootstrap4',
+    #'bootstrap5',
+    'django_bootstrap5',
     'crispy_bootstrap4',
     'crispy_forms',
     'rest_framework',
@@ -61,6 +64,8 @@ INSTALLED_APPS = [
     'tom_observations',
     'tom_dataproducts',
     'custom_code',
+    'tidestom'
+    'myplots',
 ]
 
 SITE_ID = 1
@@ -69,6 +74,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -197,7 +203,7 @@ CACHES = {
 TARGET_TYPE = 'SIDEREAL'
 
 # Set to the full path of a custom target model to extend the BaseTarget Model with custom fields.
-# TARGET_MODEL_CLASS = 'custom_code.models.UserDefinedTarget'
+TARGET_MODEL_CLASS = 'custom_code.models.TidesTarget'
 
 # Define MATCH_MANAGERS here. This is a dictionary that contains a dotted module path to the desired match manager
 # for a given model.
@@ -249,7 +255,8 @@ DATA_PRODUCT_TYPES = {
 
 DATA_PROCESSORS = {
     'photometry': 'tom_dataproducts.processors.photometry_processor.PhotometryProcessor',
-    'spectroscopy': 'tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor',
+    #'spectroscopy': 'tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor',
+    'spectroscopy': 'tidestom.tides_utils.tides_data_processor.QMOSTSpectroscopyProcessor',
 }
 
 TOM_FACILITY_CLASSES = [
