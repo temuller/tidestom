@@ -8,3 +8,5 @@ static/plots/
 db*
 *.ipynb_checkpoints/
 *.log
+*.DS_Store*
+*ipynb_checkpoints*
