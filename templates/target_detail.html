@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-
+<p>DEBUG: {{ view }}</p>
 
 <div class="row">
   <div class="col-md-3">
@@ -104,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
       {% target_unknown_statuses object %}
       {% target_buttons object %}
       {% tides_target_data object %}
+      
       <h3>Classifications</h3>
       <ul>
         <li><strong>Auto Classification:</strong></li>
@@ -123,22 +124,37 @@ document.addEventListener("DOMContentLoaded", function () {
       </ul>
       
       <ul>
-        <li><strong>Manual Classification:</strong></li>
-        {% if object.human_tidesclass %}
-          {{ object.human_tidesclass }}
-          {% if object.human_tidesclass_subclass %}
-            <ul>
-              <li>{{ object.human_tidesclass_subclass.sub_class }}</li>
-            </ul>
-          {% endif %}
+        <li><strong>Human Classification:</strong></li>
+        {% if aggregated_human_class %}
+            <p><strong>Most Common Classification:</strong> {{ aggregated_human_class.most_common_class }}</p>
+            <p><strong>Number of Submissions:</strong> {{ aggregated_human_class.total_submissions }}</p>
+            <p><strong>Count of Most Common Classification:</strong> {{ aggregated_human_class.count }}</p>
         {% else %}
-          <p>No Manual Classification</p>
+            <p>No human classifications submitted yet.</p>
         {% endif %}
       </ul>
-      {% classification_form object.id %}
-      {% recent_photometry object limit=3 %}
-      {% if object.type == 'SIDEREAL' %}
-      {% aladin_finderchart object %}
+      <ul>
+        <li><strong>All Human Classifications</strong></li>
+        {% if human_classifications %}
+            <ul>
+                {% for submission in human_classifications %}
+                    <li>
+                        <strong>{{ submission.user.username }}</strong> submitted 
+                        <strong>{{ submission.tidesclass }}</strong> 
+                        {% if submission.tidesclass_other %}(Other: {{ submission.tidesclass_other }}){% endif %}
+                        {% if submission.tidesclass_subclass %}(Subclass: {{ submission.tidesclass_subclass.name }}){% endif %}
+                        on {{ submission.timestamp|date:"Y-m-d H:i" }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No classifications have been submitted yet.</p>
+        {% endif %}
+      </ul>
+      {% classification_form target.id %}
+      {% recent_photometry target limit=3 %}
+      {% if target.type == 'SIDEREAL' %}
+      {% aladin_finderchart target %}
       {% endif %}
       
     </div>

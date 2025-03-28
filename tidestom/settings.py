@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'tom_observations',
     'tom_dataproducts',
     'custom_code',
-    'tidestom'
+    'tidestom',
     'myplots',
 ]
 

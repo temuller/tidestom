@@ -3,20 +3,23 @@ from django.views.generic.detail import DetailView
 from django_filters.views import FilterView
 from django.utils import timezone
 from django.views.generic.edit import FormView
-from django.shortcuts import get_object_or_404, redirect
+from django.db import models
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from guardian.mixins import PermissionListMixin
 from tom_targets.models import Target
 from tom_targets.filters import TargetFilter
 from tom_dataproducts.models import DataProduct
 from datetime import timedelta
-
-from custom_code.models import TidesTarget
+from collections import Counter
+from custom_code.models import TidesTarget, HumanTidesClassSubmission  
 from custom_code.forms import TidesTargetForm
 
 #from tom_common.mixins import Raise403PermissionRequiredMixin
 from datetime import timedelta
 
+from django.utils.timezone import now
 
 class LatestView(PermissionListMixin, FilterView):
     template_name = 'latest.html'
@@ -36,15 +39,59 @@ class LatestView(PermissionListMixin, FilterView):
             dataproduct__data_product_type='spectroscopy'
         ).distinct()
         return context
-   
-class TargetDetailView(DetailView):
+
+class MyTargetDetailView(DetailView):
     model = TidesTarget
     template_name = 'target_detail.html'
-    context_object_name = 'object'
+    context_object_name = 'target'
+    print('MyTargetDetailView called')
+    def __init__(self, *args, **kwargs):
+        print("MyTargetDetailView initialized")  # Debug statement
+        super().__init__(*args, **kwargs)
 
+    @classmethod
+    def as_view(cls, **initkwargs):
+        print("MyTargetDetailView as_view called")  # Debug statement
+        return super().as_view(**initkwargs)
+    
+    def dispatch(self, request, *args, **kwargs):
+        print("TMyargetDetailView dispatch called")  # Debug statement
+        return super().dispatch(request, *args, **kwargs)
+    
     def get_context_data(self, **kwargs):
+        print("MyTargetDetailView get context data called")  # Debug statement
         context = super().get_context_data(**kwargs)
+        context['view'] = self  # Explicitly set the view in the context
+        target = self.get_object()
+        submissions = HumanTidesClassSubmission.objects.filter(target=target)
+        print(f"Submissions retrieved: {submissions}")  # Debug statement
+        # Debug each submission
+        for submission in submissions:
+            print(f"Submission ID: {submission.id}")
+            print(f"Target: {submission.target}")
+            print(f"Tidesclass Class: {submission.tidesclass}")
+            print(f"Tidesclass Subclass: {submission.tidesclass_subclass}")
         context['form'] = TidesTargetForm()
+
+        # Get all human classification submissions for this target
+        submissions = HumanTidesClassSubmission.objects.filter(target=target)
+        # Aggregate the most common classification
+        if submissions.exists():
+            print(f"Submissions exist, now trying to count ")  # Debug statement
+            tidesclass_counts = Counter(sub.tidesclass for sub in submissions if sub.tidesclass is not None)
+            print("counted ",tidesclass_counts)
+            most_common_class, count = tidesclass_counts.most_common(1)[0]
+            print("counted, here is most common",most_common_class, count )
+            context['aggregated_human_class'] = {
+                'most_common_class': most_common_class,
+                'count': count,
+                'total_submissions': submissions.count(),
+            }
+        else:
+            context['aggregated_human_class'] = None
+
+        # Add all individual submissions to the context
+        context['human_classifications'] = submissions.order_by('-timestamp')
         return context
 
 class SubmitClassificationView(FormView):
@@ -53,10 +100,16 @@ class SubmitClassificationView(FormView):
 
     def form_valid(self, form):
         target = get_object_or_404(TidesTarget, id=self.kwargs['target_id'])
-        target.human_tidesclass = form.cleaned_data['tidesclass']
-        target.human_tidesclass_other = form.cleaned_data['tidesclass_other']
-        target.human_tidesclass_subclass = form.cleaned_data['tidesclass_subclass']
-        target.save()
+        # Save the classification as a new submission
+        submission = HumanTidesClassSubmission.objects.create(
+            target=target,
+            user=self.request.user,
+            tidesclass=form.cleaned_data['tidesclass'],
+            tidesclass_other=form.cleaned_data['tidesclass_other'],
+            tidesclass_subclass=form.cleaned_data['tidesclass_subclass'],
+            timestamp=now()
+        )
+        print(f"Submission saved: {submission}")  # Debug statement
         return redirect('target_detail', pk=self.kwargs['target_id'])
 
     def get_context_data(self, **kwargs):
@@ -76,3 +129,4 @@ def get_subclasses(request):
         return JsonResponse(list(subclasses), safe=False)
     except TidesClass.DoesNotExist:
         return JsonResponse([], safe=False)
+
