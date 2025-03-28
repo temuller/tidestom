@@ -4,8 +4,9 @@ import pandas as pd
 from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from tidestom.models import Target, DataProduct
-from tidestom.utils import generate_spectrum_plot, add_spectrum_to_database
+from custom_code.models import TidesTarget as Target
+from tom_dataproducts.models import DataProduct
+from tidestom.tides_utils.target_utils import generate_spectrum_plot, add_spectrum_to_database
 
 # Configure logging
 logging.basicConfig(
