@@ -54,9 +54,9 @@ def add_spectrum_to_database(target, spectrum_file_path):
         if os.path.exists(spectrum_file_path):
         
             if os.path.basename(spectrum_file_path).startswith('l1_obs_joined_'):
-                tom_file_path = '/Users/pwise/4MOST/tides/tidestom/data/spectra/test/'+os.path.basename(spectrum_file_path)
+                tom_file_path = os.path.join(settings.BASE_DIR,'data/spectra/test/'+os.path.basename(spectrum_file_path)
             else:
-                tom_file_path = '/Users/pwise/4MOST/tides/tidestom/data/spectra/'+os.path.basename(spectrum_file_path)
+                tom_file_path = os.path.join(settings.BASE_DIR,'data/spectra/'+os.path.basename(spectrum_file_path)
             if not os.path.isfile(tom_file_path):
                 os.symlink(spectrum_file_path,tom_file_path)
             print('Adding', target, f'{target.name}', tom_file_path)
