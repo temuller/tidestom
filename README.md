@@ -41,27 +41,36 @@ If you want to contribute to the development of this project, follow these steps
     git checkout -b <your-branch-name>
     ```
 
-4. **Make your changes**:  
+4. **Run the `populate_tidesclasses` command**:  
+   Before adding targets, make sure to populate the `TidesClass` and `TidesClassSubClass` tables by running the following command:
+    ```bash
+    python manage.py populate_tidesclasses
+    ```
+
+5. **Add targets**:  
+   Once the `TidesClass` and `TidesClassSubClass` tables are populated, you can proceed to add targets to the database.
+
+6. **Make your changes**:  
    Make the necessary changes to the codebase.
 
-5. **Edit .gitignore**:
+7. **Edit .gitignore**:
    Make sure that any data/ directories and the database (db.sqlite, or similar) are added to .gitignore so they are not tracked by git.
 
-6. **Commit your changes**:  
+8. **Commit your changes**:  
    Stage and commit your changes:
     ```bash
     git add .
     git commit -m "Description of your changes"
     ```
 
-7. **Push your branch**:  
+9. **Push your branch**:  
    Push your branch to your forked repository:
     ```bash
     git push origin <your-branch-name>
     ```
 
-8. **Open a pull request**:  
-   Go to the original repository on GitHub and open a pull request to merge your changes into the main branch.
+10. **Open a pull request**:  
+    Go to the original repository on GitHub and open a pull request to merge your changes into the main branch.
 
 ---
 ## Setting Up Test Data
