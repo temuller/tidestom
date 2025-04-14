@@ -32,7 +32,7 @@ If you want to contribute to the development of this project, follow these steps
    Clone your forked repository to your local machine:
     ```bash
     git clone https://github.com/TiDES-4MOST/tidestom.git
-    cd tides_tom
+    cd tidestom
     ```
 
 3. **Create a new branch**:  
@@ -69,29 +69,24 @@ If you want to contribute to the development of this project, follow these steps
 
 To use the Tides TOM with test data, follow these steps:
 
-1. **Run the `populate_tidesclasses` command**:  
-   Before adding targets, make sure to populate the `TidesClass` and `TidesClassSubClass` tables by running the following command:
-    ```bash
-    python manage.py populate_tidesclasses
-    ```
-
-2. **Download the test data**:  
+1. **Download the test data**:  
    Download the test data from the following link:  
    [Test Data](https://drive.google.com/file/d/1HxkHGde8RTyMZWAeSsQjQqdPiWQTlu3s/view?usp=sharing)
+   
 
-3. **Unzip the test data**:  
+2. **Unzip the test data**:  
    Extract the downloaded file to a directory of your choice:
     ```bash
     tar -xvf /path/to/downloaded/file.tar.gz -C /path/to/extract/
     ```
 
-4. **Set the test directory path**:  
+3. **Set the test directory path**:  
    Add the test directory path to your environment by editing the `tom_env/bin/activate` script:
     ```bash
     nano /path/to/tom_env/bin/activate
     ```
 
-   Add the following line to the end of the file:
+4. Add the following line to the end of the file:
     ```bash
     export TIDES_TEST_DIR="/path/to/extracted/test/data"
     ```
@@ -104,6 +99,12 @@ To use the Tides TOM with test data, follow these steps:
    Verify that the environment variable is set:
     ```bash
     echo $TIDES_TEST_DIR
+    ```   
+
+5. **Run the `populate_tidesclasses` command**:  
+    Before adding targets, make sure to populate the `TidesClass` and `TidesClassSubClass` tables by running the following command:
+    ```bash
+    python manage.py populate_tidesclasses
     ```
 ---
 ## Loading Test Data into the Database
