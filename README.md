@@ -6,22 +6,14 @@ This repository contains the Tides TOM (Target and Observation Manager) project,
 
 ## Installation
 
-To set up the Tides TOM, follow the manual installation instructions for the TOM Toolkit as described in the official documentation:  
-[https://tom-toolkit.readthedocs.io/en/stable/introduction/manual_installation.html](https://tom-toolkit.readthedocs.io/en/stable/introduction/manual_installation.html)
-In particular, make sure you have activated the virtual environment.
+To set up the Tides TOM, follow these steps:
 
-### Steps:
-1. Follow the instructions in the TOM Toolkit manual installation guide.
-2. Stop BEFORE the step where you run:
-    ```bash
-    pip install tomtoolkit
-    ```
-3. Run the setup script:
+1. Run the setup script:
     ```bash
     ./setup.sh
     ```
 
-Once you have installed the TOM Toolkit, you can proceed to fork this repository and set up the Tides TOM.
+Once you have installed the TOM Toolkit and the required dependencies, you can proceed to fork this repository and set up the Tides TOM.
 
 ---
 
