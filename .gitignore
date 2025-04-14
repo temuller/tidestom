@@ -9,3 +9,4 @@ db*
 *.DS_Store*
 *ipynb_checkpoints*
 custom_code/__pycache__/
+tidestom/__pycache__/
