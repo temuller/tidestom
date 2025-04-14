@@ -26,7 +26,8 @@ class Command(BaseCommand):
                 other_fields = {
                     'ra': row['ra'],
                     'dec': row['dec'],
-                    'created': row['MJD_DET']
+                    'created': row['MJD_DET'],
+                    'type':'SIDEREAL'
                     # Add other fields as needed
                 }
 

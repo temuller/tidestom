@@ -2,10 +2,14 @@ import os
 import logging
 import pandas as pd
 from datetime import datetime
+from pathlib import Path  # Import pathlib
+
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from tidestom.models import Target, DataProduct
-from tidestom.utils import generate_spectrum_plot, add_spectrum_to_database
+from custom_code.models import TidesTarget as Target
+from custom_code.models import TidesClassSubClass
+from tom_dataproducts.models import DataProduct
+from tidestom.tides_utils.target_utils import generate_spectrum_plot, add_spectrum_to_database
 
 # Configure logging
 logging.basicConfig(
@@ -35,15 +39,18 @@ class Command(BaseCommand):
             logging.error("Either --mock or --pipeline option must be specified")
 
     def add_spectra_from_mock_db(self):
+        test_data_dir = Path(settings.BASE_DIR) / 'data/spectra/test'
+        test_data_dir.mkdir(parents=True, exist_ok=True)
         target_csv_path = os.path.join(settings.TEST_DIR, "mock_DB.csv")
 
         if not os.path.exists(target_csv_path):
             self.stdout.write(self.style.ERROR(f"Target CSV file not found at {target_csv_path}"))
             return
+        
         dbdf = pd.read_csv(target_csv_path, index_col=0)
         targets = Target.objects.all()
         for target in targets:
-            spectrum_file_path = os.path.join(settings.TEST_DIR,f'spec_simulations/sims/l1_obs_joined_{target.name}.fits')
+            spectrum_file_path = os.path.join(settings.TEST_DIR,f'sims/l1_obs_joined_{target.name}.fits')
             if os.path.exists(spectrum_file_path):
                 # Check if the spectrum already exists in the database
                 spectrum_exists = DataProduct.objects.filter(target=target, data=spectrum_file_path).exists()
@@ -62,14 +69,22 @@ class Command(BaseCommand):
                 logging.info(f'Checking auto classification for target {target.name}')
                 int_name = int(target.name)
                 if int_name in dbdf.index:
-                    logging.info(f'Found target {target.name} in the database')
+                    logging.info(f'Found target {target.name} in the mock catalogue')
                     auto_class = dbdf.at[int_name, 'AutoClass']
                     auto_class_subclass = dbdf.at[int_name, 'AutoClass_SubClass']
                     auto_class_prob = dbdf.at[int_name, 'AutoClassProb']
 
                     if auto_class:
                         target.auto_tidesclass = auto_class
-                        target.auto_tidesclass_subclass = auto_class_subclass
+
+                        # Retrieve the TidesClassSubClass instance using the correct field
+                        auto_class_subclass_instance = TidesClassSubClass.objects.filter(sub_class=auto_class_subclass).first()
+
+                        if auto_class_subclass_instance:
+                            target.auto_tidesclass_subclass = auto_class_subclass_instance
+                        else:
+                            logging.warning(f"Subclass '{auto_class_subclass}' not found in TidesClassSubClass for target {target.name}")
+
                         target.auto_tidesclass_prob = auto_class_prob
                         target.save()
                         logging.info(f'Updated auto classification for target {target.name}')
@@ -113,7 +128,15 @@ class Command(BaseCommand):
             # Add or update automatic classification
             if auto_class:
                 target.auto_tidesclass = auto_class
-                target.auto_tidesclass_subclass = auto_class_subclass
+
+                # Retrieve the TidesClassSubClass instance using the correct field
+                auto_class_subclass_instance = TidesClassSubClass.objects.filter(sub_class=auto_class_subclass).first()
+
+                if auto_class_subclass_instance:
+                    target.auto_tidesclass_subclass = auto_class_subclass_instance
+                else:
+                    logging.warning(f"Subclass '{auto_class_subclass}' not found in TidesClassSubClass for target {target.name}")
+
                 target.auto_tidesclass_prob = auto_class_prob
                 target.save()
                 logging.info(f'Updated auto classification for target {target.name}')

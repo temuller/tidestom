@@ -7,11 +7,11 @@ register = template.Library()
 
 @register.inclusion_tag('custom_code/partials/classification_form.html', takes_context=True)
 def classification_form(context, target_id):
+    """
+    Renders the human classification submission form for a given target.
+    """
     target = get_object_or_404(TidesTarget, id=target_id)
-    form = TidesTargetForm(instance=target)
-    print("##############")
-    print("Creating TidesTargetForm in classification_extras")
-    print(" ")
+    form = TidesTargetForm()
     return {
         'form': form,
         'target': target,

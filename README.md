@@ -6,18 +6,14 @@ This repository contains the Tides TOM (Target and Observation Manager) project,
 
 ## Installation
 
-To set up the Tides TOM, follow the manual installation instructions for the TOM Toolkit as described in the official documentation:  
-[https://tom-toolkit.readthedocs.io/en/stable/introduction/manual_installation.html](https://tom-toolkit.readthedocs.io/en/stable/introduction/manual_installation.html)
-In particular, make sure you have activated the virtual environment.
+To set up the Tides TOM, follow these steps:
 
-### Steps:
-1. Follow the instructions in the TOM Toolkit manual installation guide.
-2. Stop at the step where you run:
+1. Run the setup script:
     ```bash
-    pip install tomtoolkit
+    ./setup.sh
     ```
 
-Once you have installed the TOM Toolkit, you can proceed to fork this repository and set up the Tides TOM.
+Once you have installed the TOM Toolkit and the required dependencies, you can proceed to fork this repository and set up the Tides TOM.
 
 ---
 
@@ -32,7 +28,7 @@ If you want to contribute to the development of this project, follow these steps
    Clone your forked repository to your local machine:
     ```bash
     git clone https://github.com/TiDES-4MOST/tidestom.git
-    cd tides_tom
+    cd tidestom
     ```
 
 3. **Create a new branch**:  
@@ -44,7 +40,7 @@ If you want to contribute to the development of this project, follow these steps
 4. **Make your changes**:  
    Make the necessary changes to the codebase.
 
-5. **Edit .gitignore**:
+5. **Edit .gitignore**:  
    Make sure that any data/ directories and the database (db.sqlite, or similar) are added to .gitignore so they are not tracked by git.
 
 6. **Commit your changes**:  
@@ -64,6 +60,7 @@ If you want to contribute to the development of this project, follow these steps
    Go to the original repository on GitHub and open a pull request to merge your changes into the main branch.
 
 ---
+
 ## Setting Up Test Data
 
 To use the Tides TOM with test data, follow these steps:
@@ -71,6 +68,7 @@ To use the Tides TOM with test data, follow these steps:
 1. **Download the test data**:  
    Download the test data from the following link:  
    [Test Data](https://drive.google.com/file/d/1HxkHGde8RTyMZWAeSsQjQqdPiWQTlu3s/view?usp=sharing)
+   
 
 2. **Unzip the test data**:  
    Extract the downloaded file to a directory of your choice:
@@ -84,7 +82,7 @@ To use the Tides TOM with test data, follow these steps:
     nano /path/to/tom_env/bin/activate
     ```
 
-   Add the following line to the end of the file:
+4. Add the following line to the end of the file:
     ```bash
     export TIDES_TEST_DIR="/path/to/extracted/test/data"
     ```
@@ -97,35 +95,13 @@ To use the Tides TOM with test data, follow these steps:
    Verify that the environment variable is set:
     ```bash
     echo $TIDES_TEST_DIR
-    ```
+    ```   
 
----
-## Running the Server
-
-To run the Tides TOM server, follow these steps:
-
-1. Navigate to the project directory:
+5. **Run the `populate_tidesclasses` command**:  
+    Before adding targets, make sure to populate the `TidesClass` and `TidesClassSubClass` tables by running the following command:
     ```bash
-    cd tides_tom
+    python manage.py populate_tidesclasses
     ```
-
-2. Run database migrations to initialize the database:
-    ```bash
-    python manage.py migrate
-    ```
-
-3. Start the development server:
-    ```bash
-    python manage.py runserver
-    ```
-
-4. Open your browser and navigate to:
-    ```
-    http://127.0.0.1:8000/
-    ```
-
-You should now see the Tides TOM application running locally.
-
 ---
 ## Loading Test Data into the Database
 
@@ -146,6 +122,38 @@ Once the test data is set up, you can load it into the database using the follow
 These commands will populate the database with the test targets and spectra.
 
 ---
+## Running the Server
+
+To run the Tides TOM server, follow these steps:
+
+1. Navigate to the project directory:
+    ```bash
+    cd tides_tom
+    ```
+
+2. Run database migrations to initialize the database:
+    ```bash
+    python manage.py migrate
+    ```
+
+3. Create a superuser:  
+   To access the Django admin interface and manage the application, create a superuser account:
+    ```bash
+    python manage.py createsuperuser
+    ```
+   Follow the prompts to set up a username and password. You can leave the e-mail blank for development purposes.
+
+4. Start the development server:
+    ```bash
+    python manage.py runserver
+    ```
+
+5. Open your browser and navigate to:
+    ```
+    http://127.0.0.1:8000/
+    ```
+
+You should now see the Tides TOM application running locally.
 
 ## Notes
 
