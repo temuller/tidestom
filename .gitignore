@@ -4,6 +4,7 @@ tom_env/
 data/
 *pycache*
 static/plots/
+.DS_Store
 db*
 *.log
 *.DS_Store*
