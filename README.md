@@ -12,9 +12,13 @@ In particular, make sure you have activated the virtual environment.
 
 ### Steps:
 1. Follow the instructions in the TOM Toolkit manual installation guide.
-2. Stop at the step where you run:
+2. Stop BEFORE the step where you run:
     ```bash
     pip install tomtoolkit
+    ```
+3. Run the setup script:
+    ```bash
+    ./setup.sh
     ```
 
 Once you have installed the TOM Toolkit, you can proceed to fork this repository and set up the Tides TOM.
@@ -128,7 +132,6 @@ These commands will populate the database with the test targets and spectra.
 ---
 ## Running the Server
 
-
 To run the Tides TOM server, follow these steps:
 
 1. Navigate to the project directory:
@@ -140,7 +143,13 @@ To run the Tides TOM server, follow these steps:
     ```bash
     python manage.py migrate
     ```
-  
+
+3. Create a superuser:  
+   To access the Django admin interface and manage the application, create a superuser account:
+    ```bash
+    python manage.py createsuperuser
+    ```
+   Follow the prompts to set up a username and password. You can leave the e-mail blank for development purposes.
 
 4. Start the development server:
     ```bash
@@ -153,8 +162,6 @@ To run the Tides TOM server, follow these steps:
     ```
 
 You should now see the Tides TOM application running locally.
-
-
 
 ## Notes
 

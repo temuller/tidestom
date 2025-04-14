@@ -36,11 +36,14 @@ class Command(BaseCommand):
             logging.error("Either --mock or --pipeline option must be specified")
 
     def add_spectra_from_mock_db(self):
+        test_data_dir = Path(settings.BASE_DIR) / 'data/spectra/test'
+        test_data_dir.mkdir(parents=True, exist_ok=True)
         target_csv_path = os.path.join(settings.TEST_DIR, "mock_DB.csv")
 
         if not os.path.exists(target_csv_path):
             self.stdout.write(self.style.ERROR(f"Target CSV file not found at {target_csv_path}"))
             return
+        
         dbdf = pd.read_csv(target_csv_path, index_col=0)
         targets = Target.objects.all()
         for target in targets:
@@ -63,7 +66,7 @@ class Command(BaseCommand):
                 logging.info(f'Checking auto classification for target {target.name}')
                 int_name = int(target.name)
                 if int_name in dbdf.index:
-                    logging.info(f'Found target {target.name} in the database')
+                    logging.info(f'Found target {target.name} in the mock catalogue')
                     auto_class = dbdf.at[int_name, 'AutoClass']
                     auto_class_subclass = dbdf.at[int_name, 'AutoClass_SubClass']
                     auto_class_prob = dbdf.at[int_name, 'AutoClassProb']
