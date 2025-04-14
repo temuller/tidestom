@@ -2,6 +2,8 @@ import os
 import logging
 import pandas as pd
 from datetime import datetime
+from pathlib import Path  # Import pathlib
+
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from custom_code.models import TidesTarget as Target
