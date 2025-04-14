@@ -7,6 +7,7 @@ from pathlib import Path  # Import pathlib
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from custom_code.models import TidesTarget as Target
+from custom_code.models import TidesClassSubClass
 from tom_dataproducts.models import DataProduct
 from tidestom.tides_utils.target_utils import generate_spectrum_plot, add_spectrum_to_database
 
@@ -75,7 +76,15 @@ class Command(BaseCommand):
 
                     if auto_class:
                         target.auto_tidesclass = auto_class
-                        target.auto_tidesclass_subclass = auto_class_subclass
+
+                        # Retrieve the TidesClassSubClass instance using the correct field
+                        auto_class_subclass_instance = TidesClassSubClass.objects.filter(sub_class=auto_class_subclass).first()
+
+                        if auto_class_subclass_instance:
+                            target.auto_tidesclass_subclass = auto_class_subclass_instance
+                        else:
+                            logging.warning(f"Subclass '{auto_class_subclass}' not found in TidesClassSubClass for target {target.name}")
+
                         target.auto_tidesclass_prob = auto_class_prob
                         target.save()
                         logging.info(f'Updated auto classification for target {target.name}')
@@ -119,7 +128,15 @@ class Command(BaseCommand):
             # Add or update automatic classification
             if auto_class:
                 target.auto_tidesclass = auto_class
-                target.auto_tidesclass_subclass = auto_class_subclass
+
+                # Retrieve the TidesClassSubClass instance using the correct field
+                auto_class_subclass_instance = TidesClassSubClass.objects.filter(sub_class=auto_class_subclass).first()
+
+                if auto_class_subclass_instance:
+                    target.auto_tidesclass_subclass = auto_class_subclass_instance
+                else:
+                    logging.warning(f"Subclass '{auto_class_subclass}' not found in TidesClassSubClass for target {target.name}")
+
                 target.auto_tidesclass_prob = auto_class_prob
                 target.save()
                 logging.info(f'Updated auto classification for target {target.name}')
