@@ -44,7 +44,7 @@ class Command(BaseCommand):
         dbdf = pd.read_csv(target_csv_path, index_col=0)
         targets = Target.objects.all()
         for target in targets:
-            spectrum_file_path = os.path.join(settings.TEST_DIR,f'spec_simulations/sims/l1_obs_joined_{target.name}.fits')
+            spectrum_file_path = os.path.join(settings.TEST_DIR,f'sims/l1_obs_joined_{target.name}.fits')
             if os.path.exists(spectrum_file_path):
                 # Check if the spectrum already exists in the database
                 spectrum_exists = DataProduct.objects.filter(target=target, data=spectrum_file_path).exists()
