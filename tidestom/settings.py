@@ -64,11 +64,8 @@ INSTALLED_APPS = [
     'tom_observations',
     'tom_dataproducts',
     'custom_code',
-<<<<<<< HEAD
     'tidestom'
     'myplots',
-=======
->>>>>>> 2ba69a3e2a1941ace9823d6bbda7d9fc1b5380d8
 ]
 
 SITE_ID = 1
@@ -206,11 +203,7 @@ CACHES = {
 TARGET_TYPE = 'SIDEREAL'
 
 # Set to the full path of a custom target model to extend the BaseTarget Model with custom fields.
-<<<<<<< HEAD
 TARGET_MODEL_CLASS = 'custom_code.models.TidesTarget'
-=======
-# TARGET_MODEL_CLASS = 'custom_code.models.UserDefinedTarget'
->>>>>>> 2ba69a3e2a1941ace9823d6bbda7d9fc1b5380d8
 
 # Define MATCH_MANAGERS here. This is a dictionary that contains a dotted module path to the desired match manager
 # for a given model.
