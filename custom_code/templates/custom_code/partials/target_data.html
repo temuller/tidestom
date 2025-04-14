@@ -11,7 +11,8 @@
   {% for key, value in target.as_dict.items %}
     {% if value and key not in exclude_fields %}
       <dt class="col-sm-6" title="{% help_text target key %}">{% verbose_name target key %}</dt>
-      <dd class="col-sm-6">{{ value|truncate_number }}</dd>
+      <! This used to be value|truncate_number but sometimes truncate_number is not loaded properly/>
+      <dd class="col-sm-6">{{ value }}</dd>
     {% endif %}
     {% if key == 'ra' %}
       <dt class="col-sm-6">RA</dt>

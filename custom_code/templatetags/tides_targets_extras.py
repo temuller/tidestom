@@ -10,6 +10,7 @@ def tides_target_data(target):
     """
     exclude_fields = ['name', 'tidesclass', 'tidesclass_other', 'tidesclass_subclass', 'auto_tidesclass', 'auto_tidesclass_other', 'auto_tidesclass_subclass', 'auto_tidesclass_prob', 'human_tidesclass', 'human_tidesclass_other', 'human_tidesclass_subclass']
     extras = {k['name']: target.extra_fields.get(k['name'], '') for k in settings.EXTRA_FIELDS if not k.get('hidden') and k['name'] not in exclude_fields}
+    print(target.as_dict())  
     return {
         'target': target,
         'extras': extras
