@@ -23,6 +23,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--mock', action='store_true', help='Add spectra from mock database')
+        
         parser.add_argument('--pipeline', action='store_true', help='Add spectra from pipeline results')
         parser.add_argument('--pipeline-results', type=str, help='Path to the pipeline results file')
 
@@ -142,3 +143,24 @@ class Command(BaseCommand):
                 logging.info(f'Updated auto classification for target {target.name}')
             else:
                 logging.warning(f'No auto classification found for target {target.name}')
+                
+    def generate_mock_photometry(self):
+        """Generates a set of light curves from a single mock object.
+        
+        The same target names used for the mock spectra are used to create the photometry.
+        """
+        from pathlib import Path
+        test_data_dir = Path(settings.BASE_DIR) / 'data/photometry/test'
+        test_data_dir.mkdir(parents=True, exist_ok=True)
+        target_csv_path = os.path.join(settings.TEST_DIR, "mock_DB.csv")
+
+        if not os.path.exists(target_csv_path):
+            self.stdout.write(self.style.ERROR(f"Target CSV file not found at {target_csv_path}"))
+            return
+        
+        dbdf = pd.read_csv(target_csv_path, index_col=0)
+        mock_file = Path(settings.TEST_DIR, "lcs", "test.csv")
+        mock_df = pd.read_csv(mock_file)
+        for name in dbdf.name.values:
+            outfile = Path(test_data_dir, f"{name}.csv")
+            mock_df.to_csv(outfile)

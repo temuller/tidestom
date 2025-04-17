@@ -8,12 +8,15 @@ from tom_dataproducts.models import DataProduct
 from tom_dataproducts.data_processor import run_data_processor
 from datetime import datetime
 from pathlib import Path  # Import pathlib
+import pandas as pd
 
-def generate_light_curve_plot(target):
-    # Generate the light curve plot for the target
+def generate_light_curve_plot(target, phot_file):
+    phot_df = pd.read_csv(phot_file)
     plt.figure()
-    # Example plot code
-    plt.plot([1, 2, 3], [4, 5, 6])
+    for filter in phot_df["filter"].unique():
+        filt_df = phot_df[phot_df["filter"] == filter]
+        plt.plot(filt_df.time.values, filt_df.magnitude.values)
+    # Generate the light curve plot for the target
     plt.title(f'Light Curve for {target.name}')
     
     # Ensure the directory exists
@@ -86,3 +89,27 @@ def add_spectrum_to_database(target, spectrum_file_path):
             return f'Spectrum file for {target.name} does not exist'
     except Exception as e:
         return f'Error adding spectrum for {target.name}: {e}'
+    
+def add_photometry_to_database(target, photometry_file_path):
+    try:
+        if os.path.exists(photometry_file_path):
+        
+            if os.path.basename(photometry_file_path).endswith('.csv'):  # ToDo: these will also be the actual photometry files
+                tom_file_path = os.path.join(settings.BASE_DIR,'data/photometry/test/',os.path.basename(photometry_file_path))
+            else:
+                tom_file_path = os.path.join(settings.BASE_DIR,'data/photometry/',os.path.basename(photometry_file_path))
+            if not os.path.isfile(tom_file_path):
+                os.symlink(photometry_file_path, tom_file_path)
+            print('Adding', target, f'{target.name}', tom_file_path)
+            data_product = DataProduct.objects.create(
+                target=target,
+                data_product_type='photometry',
+                product_id=f'{target.name}'+datetime.now().strftime('%Y%m%d%H%M%S'),
+                data=tom_file_path
+            )
+            run_data_processor(data_product)
+            return f'Added photometry for {target.name} to the database'
+        else:
+            return f'Photometry file for {target.name} does not exist'
+    except Exception as e:
+        return f'Error adding photometry for {target.name}: {e}'

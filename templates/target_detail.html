@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
         {% target_groups target %}
       </div>
       <div class="tab-pane" id="photometry">
-        {% photometry_for_target target %}
+        {% target_photometry target %}
         {% get_photometry_data object %}
         </div>
       <div class="tab-pane active" id="spectroscopy">
