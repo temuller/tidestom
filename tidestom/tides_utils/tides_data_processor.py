@@ -33,21 +33,69 @@ class QMOSTSpectroscopyProcessor(DataProcessor):
         '''Some code to process real 4MOST L1 spectra''' 
 
 
+
+
+##############
+# Photometry #
+##############
+
+class PhotometrySerializer():
+    def serialize(self, photometry: pd.DataFrame) -> tuple[list, list]:
+        """
+        Serializes photometry in order to store in a ReducedDatum object. The serialization stores only what's
+        necessary to rebuild the photometry dataframe.
+
+        :param photometry: photometry dataframe.
+
+        :returns: observed dates (list) and photometric epochs (list)
+        """
+        obs_dates, phot_epochs = [], []
+        for _, row in photometry.iterrows():
+            epoch = {}
+            for key in photometry.columns:
+                if isinstance(row[key], float):
+                    if np.isnan(row[key]):
+                        # convert NaN to number
+                        epoch[key] = -99
+                    else:    
+                        epoch[key] = row[key]
+                else:    
+                    epoch[key] = row[key]
+            phot_epochs.append(epoch)
+            obs_date = Time(row["mjd"], format="mjd").to_datetime(timezone=pytz.UTC)
+            obs_dates.append(obs_date)
+        return obs_dates, phot_epochs
+
+    def deserialize(self, datums: list) -> pd.DataFrame:
+        """
+        Constructs photometry from a set of ReducedDatums
+
+        :param datums list with photometric epochs
+
+        :returns: photometry data frame
+        """
+        photometry = {}
+        for datum in datums:
+            for key, value in datum.value.items():
+                if key not in photometry.keys():
+                    photometry[key] = [value]
+                else:
+                    photometry[key].append(value)
+        photometry = pd.DataFrame(photometry)
+        photometry.replace(-99, np.nan, inplace=True)
+        photometry.rename(columns={"magnitude":"mag", "error":"mag_err", "filter":"filt"}, inplace=True)
+        
+        return photometry
+
 class QMOSTPhotometryProcessor(DataProcessor):
     def process_data(self, data_product, test=False):
         if Path(data_product.data.path).name.endswith('.csv'):
             obs_dates, phot_epochs, source_id = self._process_test_photometry(data_product)
-        print(phot_epochs[0])
-        print(obs_dates[0])
-
+        print(phot_epochs)
+            
         return [(obs_date, phot_epoch, source_id) for obs_date, phot_epoch in zip(obs_dates, phot_epochs)]
     
     def _process_test_photometry(self, data_product):
         phot_df = pd.read_csv(data_product.data.path)
-        obs_dates, phot_epochs = [], []
-        for _, row in phot_df.iterrows():
-            if not np.isnan(row["magnitude"]):
-                phot_epochs.append({key: row[key] for key in row.keys() if key!="time"})
-                obs_dates.append(Time(row["time"], format="mjd").to_datetime(timezone=pytz.UTC))
-        #phot_dict = [{key: row[key] for key in row.keys() if key!="time"} for _, row in phot_df.iterrows()]
-        return obs_dates, phot_epochs, '4MOST' #TODO change obs date!
+        obs_dates, phot_epochs = PhotometrySerializer().serialize(phot_df)
+        return obs_dates, phot_epochs, 'light_fetcher'

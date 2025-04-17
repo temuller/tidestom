@@ -9,7 +9,6 @@ from guardian.shortcuts import get_objects_for_user
 from tom_dataproducts.processors.data_serializers import SpectrumSerializer
 from tom_targets.models import Target
 
-from light_fetcher.transient import load_transient
 from .photometry_settings import plot_lightcurves
 
 register = template.Library()
@@ -96,6 +95,8 @@ def create_toggling_buttons(fig: go.Figure) -> list[dict, dict]:
     ]
     return buttons
 
+from tidestom.tides_utils.tides_data_processor import PhotometrySerializer
+
 @register.inclusion_tag('myplots/target_photometry.html', takes_context=True)
 def target_photometry(context, target, dataproduct=None):
     """
@@ -103,7 +104,6 @@ def target_photometry(context, target, dataproduct=None):
     that photometry.
     """
     
-    """
     try:
         photometry_data_type = settings.DATA_PRODUCT_TYPES['photometry'][0]
     except (AttributeError, KeyError):
@@ -120,10 +120,11 @@ def target_photometry(context, target, dataproduct=None):
         datums = get_objects_for_user(context['request'].user,
                                       'tom_dataproducts.view_reduceddatum',
                                       klass=ReducedDatum.objects.filter(data_product__in=photometric_dataproducts))
-    """
-    #print("AAAAAAAAAAAAAAAa", datums)
     
-    #"""
+    photometry = PhotometrySerializer().deserialize(datums)
+    fig = plot_lightcurves(photometry)
+    
+    """
     # example light curve - THIS WORKS
     trace1 = go.Scatter(x=[1, 2, 3], y=[20, 19, 19.5], name="mag")
     trace1.visible = True
@@ -166,13 +167,7 @@ def target_photometry(context, target, dataproduct=None):
             )
         ],
     )
-    #"""
-    
-    # ToDO: need to somehow get the light curve form the database in the desired format
-    #from pathlib import Path
-    #target_file = Path(settings.BASE_DIR, 'data/photometry/test/', 'ZTF25aalzmga.lc')
-    #phot_obj = load_transient(target_file)
-    #fig = plot_lightcurves(phot_obj)
+    """   
 
     return {
         'target': target,

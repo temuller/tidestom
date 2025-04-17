@@ -15,7 +15,7 @@ def generate_light_curve_plot(target, phot_file):
     plt.figure()
     for filter in phot_df["filter"].unique():
         filt_df = phot_df[phot_df["filter"] == filter]
-        plt.plot(filt_df.time.values, filt_df.magnitude.values)
+        plt.plot(filt_df.mjd.values, filt_df.magnitude.values)
     # Generate the light curve plot for the target
     plt.title(f'Light Curve for {target.name}')
     

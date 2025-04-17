@@ -80,12 +80,13 @@ class Command(BaseCommand):
         mock_file = Path(settings.TEST_DIR, "lcs", "test.csv")
         mock_df = pd.read_csv(mock_file)
         # add a time column
-        mock_df["time"] = mock_df.mjd.values
+        #mock_df["time"] = mock_df.mjd.values
         mock_df["magnitude"] = mock_df.mag.values
         mock_df["error"] = mock_df.mag_err.values
         mock_df["filter"] = mock_df.filt.values
         print("Generating mock files...")
         for name in dbdf.index.values:
             outfile = Path(settings.TEST_DIR, "lcs", f"{name}.csv")
-            mock_df[["time", "magnitude", "error", "filter"]].to_csv(outfile, index=False)
+            mock_df[["mjd", "magnitude", "error", "upper_mag", "filter"]].to_csv(outfile, index=False)
+            #mock_df.to_csv(outfile, index=False)
         print("Finished generating mock files!")

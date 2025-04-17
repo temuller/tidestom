@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from astropy.time import Time
-from light_fetcher.transient import Transient
 import plotly.graph_objects as go
 
 def get_hovertemplates(df: pd.DataFrame, columns: list) -> str:
@@ -136,20 +135,17 @@ def create_toggling_buttons(fig: go.Figure) -> list[dict, dict]:
             args=[
                 {'visible': flux_visibility},  # Show flux, hide magnitude
                 {'yaxis': {'title': 'Flux (μJy)'}},
-                #{'yaxis.range': 'reverted'},
-                #{'yaxis.title.text': 'Flux (μJy)'},
-                #{'yaxis.range': [np.min(min_flux, 0), max_flux * 1.05]},
             ]
         )
     ]
     return buttons
 
-def plot_lightcurves(obj: Transient) -> go.Figure:
+def plot_lightcurves(photometry: pd.DataFrame) -> go.Figure:
     """Plots the light curves for a transient.
 
     Parameter
     ---------
-    obj: transient object.
+    photometry: transient dataframe with photometry.
 
     Returns
     -------
@@ -166,19 +162,18 @@ def plot_lightcurves(obj: Transient) -> go.Figure:
                    "clear(VegaMag)":"skyblue",
                   }
 
-    # add ISO time
-    obj.lcs_df["iso"] = Time(obj.lcs_df.mjd.values, format="mjd").iso
-    obj.lcs_df["date"] = obj.lcs_df.iso.str.split().str[0]
-
+    # add columns
     zp = 23.9  # to get flux in micro jansky
-    obj.lcs_df["flux"] = 10 ** (-0.4 * (obj.lcs_df.mag.values - zp))
-    obj.lcs_df["flux_err"] = np.abs(obj.lcs_df.flux.values * 0.4 * np.log(10) * obj.lcs_df.mag_err.values)
-    obj.lcs_df["upper_flux"] = 10 ** (-0.4 * (obj.lcs_df.upper_mag.values - zp))
+    photometry["flux"] = 10 ** (-0.4 * (photometry.mag.values - zp))
+    photometry["flux_err"] = np.abs(photometry.flux.values * 0.4 * np.log(10) * photometry.mag_err.values)
+    photometry["upper_flux"] = 10 ** (-0.4 * (photometry.upper_mag.values - zp))
+    photometry["iso"] = Time(photometry.mjd.values, format="mjd").iso
+    photometry["date"] = photometry.iso.str.split().str[0]
     
     # update decimal precision
-    for col in obj.lcs_df.columns:
-        if obj.lcs_df[col].dtype == float:
-            obj.lcs_df[col] = obj.lcs_df[col].apply(lambda x: np.round(x, 3))
+    for col in photometry.columns:
+        if photometry[col].dtype == float:
+            photometry[col] = photometry[col].apply(lambda x: np.round(x, 3))
     
     ########################
     # Initialize the figure
@@ -186,7 +181,7 @@ def plot_lightcurves(obj: Transient) -> go.Figure:
     
     # Add traces for each filter
     for i, (filt, colour) in enumerate(colour_dict.items()):
-        filt_df = obj.lcs_df[obj.lcs_df["filt"]==filt]
+        filt_df = photometry[photometry["filt"]==filt]
         # split detections and non-detections
         det_mask = ~filt_df.mag.isna()
         det_df = filt_df[det_mask]
@@ -225,12 +220,12 @@ def plot_lightcurves(obj: Transient) -> go.Figure:
             trace.visible = True
             
     # discovery date
-    fig.add_vline(obj.discovery_time_mjd, line_width=2, line_dash="solid", line_color="black", 
-                      annotation_text="disc.", annotation_position="bottom left")
+    #fig.add_vline(obj.discovery_time_mjd, line_width=2, line_dash="solid", line_color="black", 
+    #                  annotation_text="disc.", annotation_position="bottom left")
     # spectra dates
-    for spec_mjd in obj.spec_df['mjd'].values:
-        fig.add_vline(spec_mjd, line_width=2, line_dash="dot", line_color="black", 
-                      annotation_text="s", annotation_position="top left")
+    #for spec_mjd in obj.spec_df['mjd'].values:
+    #    fig.add_vline(spec_mjd, line_width=2, line_dash="dot", line_color="black", 
+    #                  annotation_text="s", annotation_position="top left")
         
     # Define buttons for toggling between magnitude and flux
     buttons = create_toggling_buttons(fig)
