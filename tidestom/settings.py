@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-import logging.config  # logging.config was imported but never used.
+# import logging.config  # logging.config was imported but never used.
 import os
 import tempfile
 
@@ -278,12 +278,13 @@ DATA_PROCESSORS = {
     'photometry': (
         'tom_dataproducts.processors.photometry_processor.PhotometryProcessor'
     ),
-    #'spectroscopy': 'tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor',
+
     'spectroscopy': (
         'tidestom.tides_utils.tides_data_processor.QMOSTSpectroscopyProcessor'
     ),
 }
-
+# 'spectroscopy':
+# 'tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor',
 
 TOM_FACILITY_CLASSES = [
     'tom_observations.facilities.lco.LCOFacility',
