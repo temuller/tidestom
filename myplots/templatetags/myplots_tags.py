@@ -69,10 +69,8 @@ def target_photometry(context, target, dataproduct=None):
     Renders a photometry plot for a ``Target``. If a ``DataProduct`` is specified, it will only render a plot with
     that photometry.
     """
-    print('AAAAAAAAA')
     photometry = fetch_ztf_lasair(49.1384664, 44.9725084)  # ZTF25aacedrs for testing
     #photometry = fetch_ztf_lasair(target.ra, target.dec)
-    print(photometry)
     
     # plot photometry
     fig = plot_lightcurves(photometry)
