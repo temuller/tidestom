@@ -49,14 +49,23 @@ document.addEventListener("DOMContentLoaded", function () {
         "MgICheckboxAbs": {x: [5167.33, 5172.68, 5183.60], color: "gray"},
         "CaIICheckboxAbs": {x: [3933.66, 3968.47], color: "purple"},
 
+        "CrFeCheckbox":{x: [6088, 6376, 7894, 5304], color: "orange"},
+        "NeVCheckbox":{x: [3347, 3427], color: "cornflowerblue"},
     };
 
     function updateLines(z) {
         const newShapes = Object.entries(lines)
             .filter(([id]) => document.getElementById(id)?.checked)
             .flatMap(([_, { x, color }]) => x.map(value => ({
-                type: "line", x0: value * (1 + z), x1: value * (1 + z),
-                y0: 0, y1: 1, xref: "x", yref: "paper", line: { color, width: 1 }
+                type: "line",
+                x0: value * (1 + z),
+                x1: value * (1 + z),
+                y0: 0,
+                y1: 1,
+                xref: "x",
+                yref: "paper",
+                line: { color, width: 1},
+                layer: "below"
             })));
         Plotly.relayout(plotDiv, { shapes: newShapes });
     }
@@ -250,6 +259,15 @@ document.addEventListener("DOMContentLoaded", function () {
               <label><input type="checkbox" id="CaIICheckboxAbs"> <span style="color:purple">Ca II</span></label>
             </div>
         </div>
+
+          <div class="checkbox-group">
+            <h5>High Energy Lines</h5>
+            <div class="checkbox-grid">
+                <label><input type="checkbox" id="CrFeCheckbox"> <span style="color:orange">Cr Fe</span></label>
+                <label><input type="checkbox" id="NeVCheckbox"> <span style="color:cornflowerblue">Ne V</span></label>
+            </div>
+        </div>
+
     </div>
     
       
