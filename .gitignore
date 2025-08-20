@@ -7,7 +7,9 @@ static/plots/
 .DS_Store
 db*
 *.log
-*.DS_Store*
+**/.DS_Store*
 *ipynb_checkpoints*
 custom_code/__pycache__/
 tidestom/__pycache__/
+static/.DS_Store
+static/tom_common/.DS_Store
