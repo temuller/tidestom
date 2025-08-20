@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const z = parseFloat(event.target.value);
         if (isNaN(z) || z < 0 || z > 10) return;  // Validate redshift range
         redshiftSlider.value = z;
-        redshiftInput.value = z.toFixed(2);
+        redshiftInput.value = z.toFixed(4);
         updateLines(z);
     }
 
@@ -273,8 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
     <!-- Redshift Slider -->
     <div class="spectroscopy-only">
       <label for="redshiftSlider">Redshift (z): </label>
-      <input type="range" id="redshiftSlider" min="0" max="10" step="0.01" value="0">
-      <input type="number" id="redshiftInput" min="0" max="10" step="0.01" value="0" style="width: 60px; text-align: center;">
+      <input type="range" id="redshiftSlider" min="0" max="10" step="0.0001" value="0">
+      <input type="number" id="redshiftInput" min="0" max="10" step="0.0001" value="0" style="width: 60px; text-align: center;">
     </div>
   </div>
 </div>
