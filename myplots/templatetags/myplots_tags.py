@@ -1,3 +1,4 @@
+import warnings
 from plotly import offline
 import plotly.graph_objs as go
 from datetime import datetime
@@ -8,8 +9,9 @@ from django.conf import settings
 from tom_dataproducts.models import DataProduct, ReducedDatum
 from guardian.shortcuts import get_objects_for_user
 from tom_dataproducts.processors.data_serializers import SpectrumSerializer
-from tom_targets.models import Target
 
+from tidestom.settings import BROKERS
+lasair_token = BROKERS['LASAIR']['api_key']
 from .photometry_settings import plot_lightcurves, fetch_ztf_lasair
 
 register = template.Library()
@@ -69,6 +71,11 @@ def target_photometry(context, target, dataproduct=None):
     Renders a photometry plot for a ``Target``. If a ``DataProduct`` is specified, it will only render a plot with
     that photometry.
     """
+    # check if the Lasair's API key is set
+    if lasair_token.strip() == "":
+        warnings.warn("Warning: Lasair API key not set!", UserWarning)
+        return {'target': target}
+    
     photometry = fetch_ztf_lasair(49.1384664, 44.9725084)  # ZTF25aacedrs for testing
     #photometry = fetch_ztf_lasair(target.ra, target.dec)
     
