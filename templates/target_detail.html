@@ -25,10 +25,16 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector(`a[href="#${tabQuery}"]`)?.click();
     }
 
-    // Redshift handling and plot updates.
+    // Main spectroscopy plot
     const plotDiv = document.querySelector("#spectroscopyPlot .js-plotly-plot");
+
+    // Redshift handling and plot updates.
     const redshiftSlider = document.querySelector("#redshiftSlider");
     const redshiftInput = document.querySelector("#redshiftInput");
+
+    // Velocity handling and plot updates.
+    const velocitySlider = document.querySelector("#velocitySlider");
+    const velocityInput = document.querySelector("#velocityInput");
 
     const lines = {
         "HydrogenCheckbox": { x: [4102.9351, 4341.69, 4862.68, 6564.61], color: "blue" },
@@ -53,13 +59,13 @@ document.addEventListener("DOMContentLoaded", function () {
         "NeVCheckbox":{x: [3347, 3427], color: "cornflowerblue"},
     };
 
-    function updateLines(z) {
+    function updateLines(z, v) {
         const newShapes = Object.entries(lines)
             .filter(([id]) => document.getElementById(id)?.checked)
             .flatMap(([_, { x, color }]) => x.map(value => ({
                 type: "line",
-                x0: value * (1 + z),
-                x1: value * (1 + z),
+                x0: value * ( (1 + z) + (v/299792.458)),
+                x1: value * ( (1 + z) + (v/299792.458)),
                 y0: 0,
                 y1: 1,
                 xref: "x",
@@ -70,18 +76,44 @@ document.addEventListener("DOMContentLoaded", function () {
         Plotly.relayout(plotDiv, { shapes: newShapes });
     }
 
-    function handleRedshiftChange(event) {
-        const z = parseFloat(event.target.value);
-        if (isNaN(z) || z < 0 || z > 10) return;  // Validate redshift range
-        redshiftSlider.value = z;
-        redshiftInput.value = z.toFixed(2);
-        updateLines(z);
+    function updateRedshiftVelocity() {
+        // Always pull from the current slider values (force numbers)
+        const z = Number(redshiftSlider.value);
+        const v = Number(velocitySlider.value);
+
+        // Update paired inputs
+        redshiftInput.value = isFinite(z) ? z.toFixed(4) : "";
+        velocityInput.value = isFinite(v) ? v.toFixed(0) : "";
+
+        // Only call updateLines if both are valid
+        if (!isNaN(z) && z >= 0 && z <= 10 && !isNaN(v) && v >= -50000 && v <= 50000) {
+            updateLines(z, v);
+        }
     }
 
     // Attach event listeners.
-    redshiftSlider.addEventListener("input", handleRedshiftChange);
-    redshiftInput.addEventListener("change", handleRedshiftChange);
-    Object.keys(lines).forEach(id => document.getElementById(id)?.addEventListener("change", () => updateLines(parseFloat(redshiftSlider.value))));
+    redshiftSlider.addEventListener("input", updateRedshiftVelocity);
+    velocitySlider.addEventListener("input", updateRedshiftVelocity);
+
+    // --- Manual text inputs (push back into sliders) ---
+    redshiftInput.addEventListener("change", () => {
+        const z = Number(redshiftInput.value);
+        if (!isNaN(z)) {
+            redshiftSlider.value = z;
+            updateRedshiftVelocity();
+        }
+    });
+    velocityInput.addEventListener("change", () => {
+        const v = Number(velocityInput.value);
+        if (!isNaN(v)) {
+            velocitySlider.value = v;
+            updateRedshiftVelocity();
+        }
+    });
+
+    Object.keys(lines).forEach(id => {
+        document.getElementById(id)?.addEventListener("change", updateRedshiftVelocity);
+    });
 
     // Show/hide spectroscopy elements based on active tab.
     const toggleSpectroscopyElements = () => {
@@ -290,9 +322,19 @@ document.addEventListener("DOMContentLoaded", function () {
     {% endif %}
     <!-- Redshift Slider -->
     <div class="spectroscopy-only">
-      <label for="redshiftSlider">Redshift (z): </label>
-      <input type="range" id="redshiftSlider" min="0" max="10" step="0.01" value="0">
-      <input type="number" id="redshiftInput" min="0" max="10" step="0.01" value="0" style="width: 60px; text-align: center;">
+      <label for="redshiftSlider" style="display:block; width:250px;">
+          Redshift (z):
+      </label>
+      <input type="range" id="redshiftSlider" min="0" max="10" step="0.0001" value="0">
+      <input type="number" id="redshiftInput" min="0" max="10" step="0.0001" value="0" style="width: 80px; text-align: center;">
+    </div>
+      <!-- Velocity Slider -->
+    <div class="spectroscopy-only">
+        <label for="velocitySlider" style="display:block; width:250px;">
+          Additional line velocity (km\s):
+        </label>
+      <input type="range" id="velocitySlider" min="-50000" max="50000" step="100" value="0">
+      <input type="number" id="velocityInput" min="-50000" max="50000" step="100" value="0" style="width: 80px; text-align: center;">
     </div>
   </div>
 </div>
