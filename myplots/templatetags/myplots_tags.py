@@ -72,7 +72,7 @@ def target_photometry(context, target, dataproduct=None):
     that photometry.
     """
     # check if the Lasair's API key is set
-    if lasair_token.strip() == "":
+    if lasair_token is None or lasair_token == "":
         warnings.warn("Warning: Lasair API key not set!", UserWarning)
         return {'target': target}
     

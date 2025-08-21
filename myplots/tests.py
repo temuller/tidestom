@@ -15,7 +15,7 @@ class TestPhotometry(TestCase):
         self.target.dec = 44.9725084
         
     def test_ztf_photometry(self):
-        if lasair_token.strip() == "":
+        if lasair_token is None or lasair_token == "":
             warnings.warn("Warning: Lasair API key not set!", UserWarning)
         else:
             photometry = fetch_ztf_lasair(self.target.ra, self.target.dec)
