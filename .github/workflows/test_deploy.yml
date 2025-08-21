@@ -32,7 +32,6 @@ jobs:
       - name: Install dependencies
         run: |
           source tom_env/bin/activate
-          pip install tomtoolkit
           pip install -r requirements.txt
 
       # 5. Run tests
