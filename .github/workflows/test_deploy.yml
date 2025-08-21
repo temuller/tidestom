@@ -9,6 +9,8 @@ on:
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.LASAIR_API_KEY }}
 
     steps:
       # 1. Checkout repo
