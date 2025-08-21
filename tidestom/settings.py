@@ -308,7 +308,7 @@ BROKERS = {
         'bot_name': '',
     },
     'LASAIR': {
-        'api_key': '',
+        'api_key': os.environ.get(LASAIR_API_KEY),
     }
 }
 
