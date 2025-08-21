@@ -1,4 +1,5 @@
 import warnings
+import numpy as np
 from plotly import offline
 import plotly.graph_objs as go
 from datetime import datetime
@@ -30,30 +31,54 @@ def target_spectroscopy(context, target, dataproduct=None):
                                                        data_product_type=spectroscopy_data_type)
     if dataproduct:
         spectral_dataproducts = DataProduct.objects.get(data_product=dataproduct)
-
-    plot_data = []
     if settings.TARGET_PERMISSIONS_ONLY:
         datums = ReducedDatum.objects.filter(data_product__in=spectral_dataproducts)
     else:
         datums = get_objects_for_user(context['request'].user,
                                       'tom_dataproducts.view_reduceddatum',
                                       klass=ReducedDatum.objects.filter(data_product__in=spectral_dataproducts))
+    
+    # Create a figure
+    fig = go.Figure()
+    
+    # add spectra
     for datum in datums:
         deserialized = SpectrumSerializer().deserialize(datum.value)
-        plot_data.append(go.Scatter(
+        fig.add_trace(go.Scatter(
             x=deserialized.wavelength.value,
             y=deserialized.flux.value,
-            name=datetime.strftime(datum.timestamp, '%Y%m%d-%H:%M:%s')
+            #name=datetime.strftime(datum.timestamp, '%Y%m%d-%H:%M:%s'), 
+            #name=target.name, 
+            showlegend=False,
+            hoverinfo='skip'
         ))
-    # Create a figure
-    fig = go.Figure(data=plot_data)
+    
+    # add templates - best matches
+    # mock templates for now
+    temp_waves = [deserialized.wavelength.value[::10].copy(),
+                  deserialized.wavelength.value[::30].copy(),
+                  ]
+    temp_fluxes = [deserialized.flux.value[::10].copy(),
+                   deserialized.flux.value[::30].copy(),
+                   ]
+    for i, (wave, flux) in enumerate(zip(temp_waves, temp_fluxes)):
+        fig.add_trace(go.Scatter(
+            x=wave,
+            y=flux,
+            name=f"Temp{i}", 
+            hovertemplate=f'Template: Temp{i}<br>Phase: -10 d<br>Subtype: weird SN<br>Wave.:%{{x}}',
+            showlegend=True,
+            visible='legendonly',
+        ))
 
     fig.update_layout(autosize=True, 
-                      xaxis_title='Observed Wavelength [Å] ',
-                      yaxis_title='Flux',
+                      xaxis_title='Observed Wavelength (Å)',
+                      yaxis_title='Flux (erg/s/cm²/Å)',
                       xaxis = dict(showticklabels=True, ticks='outside', linewidth=2),
                       yaxis = dict(showticklabels=True, ticks='outside', linewidth=2),
-                      shapes=[])
+                      legend_title="Best Templates",
+                      showlegend=True,
+                      )
 
     return {
         'target': target,
