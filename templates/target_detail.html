@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "NeIIICheckbox": {x: [3869.81], color: "lawngreen"},
         "CIIICheckbox": {x: [1908.734], color: "brown"},
         "CIVCheckbox": {x: [1548.187, 1550.772], color: "black"},
-        
+
         "CHCheckboxAbs": {x: [4300.00], color: "rgb(31, 31, 43)"},
         "CICheckboxAbs": {x: [9061.44, 9088.51, 9111.80], color: "brown"},
         "CIICheckboxAbs": {x: [6578.05, 6582.88], color: "black"},
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
         velocityInput.value = isFinite(v) ? v.toFixed(0) : "";
 
         // Only call updateLines if both are valid
-        if (!isNaN(z) && z >= 0 && z <= 10 && !isNaN(v) && v >= -50000 && v <= 50000) {
+        if (!isNaN(z) && z >= 0 && z <= 5 && !isNaN(v) && v >= -50000 && v <= 50000) {
             updateLines(z, v);
         }
     }
@@ -323,8 +323,8 @@ document.addEventListener("DOMContentLoaded", function () {
       <label for="redshiftSlider" style="display:block; width:250px;">
           Redshift (z):
       </label>
-      <input type="range" id="redshiftSlider" min="0" max="10" step="0.0001" value="0">
-      <input type="number" id="redshiftInput" min="0" max="10" step="0.0001" value="0" style="width: 80px; text-align: center;">
+      <input type="range" id="redshiftSlider" min="0" max="5" step="0.0001" value="0">
+      <input type="number" id="redshiftInput" min="0" max="5" step="0.0001" value="0" style="width: 80px; text-align: center;">
     </div>
       <!-- Velocity Slider -->
     <div class="spectroscopy-only">
