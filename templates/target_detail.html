@@ -76,14 +76,6 @@ document.addEventListener("DOMContentLoaded", function () {
         Plotly.relayout(plotDiv, { shapes: newShapes });
     }
 
-<<<<<<< HEAD
-    function handleRedshiftChange(event) {
-        const z = parseFloat(event.target.value);
-        if (isNaN(z) || z < 0 || z > 10) return;  // Validate redshift range
-        redshiftSlider.value = z;
-        redshiftInput.value = z.toFixed(4);
-        updateLines(z);
-=======
     function updateRedshiftVelocity() {
         // Always pull from the current slider values (force numbers)
         const z = Number(redshiftSlider.value);
@@ -97,7 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isNaN(z) && z >= 0 && z <= 10 && !isNaN(v) && v >= -50000 && v <= 50000) {
             updateLines(z, v);
         }
->>>>>>> pr-15
     }
 
     // Attach event listeners.
@@ -310,8 +301,6 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
 
     </div>
-    
-      
       
       {% comments_enabled as comments_are_enabled %}
       <hr/>
