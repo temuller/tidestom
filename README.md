@@ -102,12 +102,12 @@ To use the Tides TOM with test data, follow these steps:
     ```   
 7. **Run the `makemigrations` command**:
    ```bash
-    python manage.py populate_tidesclasses
+    python manage.py makemigrations
     ```
    
 8. **Run the `migrate` command to initialize the database**: 
    ```bash
-    python manage.py populate_tidesclasses
+    python manage.py migrate
     ```
 
 9. **Run the `populate_tidesclasses` command**:  
