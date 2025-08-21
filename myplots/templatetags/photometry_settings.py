@@ -4,7 +4,10 @@ import pandas as pd
 from astropy.time import Time
 import plotly.graph_objects as go
 
-from lasair import lasair_client
+try:
+    from lasair import lasair_client
+except Exception:
+    print('Lasair API not installed - photometry will not be fetched!')
 from tidestom.settings import BROKERS
 lasair_token = BROKERS['LASAIR']['api_key']
 
