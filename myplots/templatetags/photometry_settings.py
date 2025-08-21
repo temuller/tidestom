@@ -4,8 +4,11 @@ import pandas as pd
 from astropy.time import Time
 import plotly.graph_objects as go
 
+try:
+    from lasair import lasair_client
+except Exception:
+    print('Lasair API not installed - photometry will not be fetched!')
 from tidestom.settings import BROKERS
-from lasair import lasair_client
 lasair_token = BROKERS['LASAIR']['api_key']
 
 ##########
@@ -265,7 +268,6 @@ def plot_lightcurves(photometry: pd.DataFrame) -> go.Figure:
     photometry["Mag"] = photometry["mag"].values
     photometry["MagErr"] = photometry["mag_err"].values
     photometry["MagLimit"] = photometry["upper_mag"].values
-    print(photometry)
 
     # add ISO time
     photometry["UTC"] = Time(photometry.mjd.values, format="mjd").iso
