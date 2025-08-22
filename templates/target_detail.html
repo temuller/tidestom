@@ -102,7 +102,7 @@ fetch("{% static 'json/line_data.json' %}")
         velocityInput.value = isFinite(v) ? v.toFixed(0) : "";
 
         // Only call updateLines if both are valid
-        if (!isNaN(z) && z >= 0 && z <= 5 && !isNaN(v) && v >= -50000 && v <= 50000) {
+        if (!isNaN(z) && z >= 0 && z <= 3 && !isNaN(v) && v >= -25000 && v <= 25000) {
             updateLines(z, v);
         }
     }
@@ -315,6 +315,7 @@ fetch("{% static 'json/line_data.json' %}")
 					<br><strong>Most Common:</strong> {{ aggregated_human_class.most_common_class }}
 					<br><strong>Total Submissions:</strong> {{ aggregated_human_class.total_submissions }}
 					<br><strong>No. of Most Common:</strong> {{ aggregated_human_class.count }}
+                    <br><strong>Agreement:</strong> {% with ratio=aggregated_human_class.count|divide:aggregated_human_class.total_submissions %}{{ ratio|floatformat:3 }}{% endwith %}
 				{% else %}
 					<br><i>No human classifications submitted yet.</i>
 				{% endif %}
@@ -327,7 +328,7 @@ fetch("{% static 'json/line_data.json' %}")
 						<strong>{{ submission.user.username }}</strong> submitted
 						<strong>{{ submission.tidesclass }}</strong>
 						{% if submission.tidesclass_other %}(Other: {{ submission.tidesclass_other }}){% endif %}
-						{% if submission.tidesclass_subclass %}(Subclass: {{ submission.tidesclass_subclass.name }}){% endif %}
+						{% if submission.tidesclass_subclass %}(Subclass: {{ submission.tidesclass_subclass }}){% endif %}
 						on {{ submission.timestamp|date:"Y-m-d H:i" }}<br>
 					{% endfor %}
 				{% else %}
@@ -456,16 +457,16 @@ fetch("{% static 'json/line_data.json' %}")
       <label for="redshiftSlider" style="display:block; width:250px;">
           Redshift (z):
       </label>
-      <input type="range" id="redshiftSlider" min="0" max="5" step="0.0001" value="0" style="width: 150px">
-      <input type="number" id="redshiftInput" min="0" max="5" step="0.0001" value="0" style="width: 80px; text-align: center;">
+      <input type="range" id="redshiftSlider" min="0" max="3" step="0.0001" value="0" style="width: 150px">
+      <input type="number" id="redshiftInput" min="0" max="3" step="0.0001" value="0" style="width: 80px; text-align: center;">
     </div>
       <!-- Velocity Slider -->
     <div class="spectroscopy-only">
         <label for="velocitySlider" style="display:block; width:250px;">
           Additional line velocity (km\s):
         </label>
-      <input type="range" id="velocitySlider" min="-50000" max="50000" step="100" value="0" style="width: 150px">
-      <input type="number" id="velocityInput" min="-50000" max="50000" step="100" value="0" style="width: 80px; text-align: center;">
+      <input type="range" id="velocitySlider" min="-25000" max="25000" step="100" value="0" style="width: 150px">
+      <input type="number" id="velocityInput" min="-25000" max="25000" step="100" value="0" style="width: 80px; text-align: center;">
     </div>
   </div>
 </div>
