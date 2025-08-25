@@ -13,7 +13,7 @@ from tom_dataproducts.processors.data_serializers import SpectrumSerializer
 
 from tidestom.settings import BROKERS
 lasair_token = BROKERS['LASAIR']['api_key']
-from .spectroscopy_settings import get_pysnid_results
+from .spectroscopy_settings import add_snid_templates, add_ngsf_templates
 from .photometry_settings import plot_lightcurves, fetch_ztf_lasair
 
 register = template.Library()
@@ -56,48 +56,25 @@ def target_spectroscopy(context, target, dataproduct=None):
         ))
     
     # add templates - best matches
-    # SNID
-    #"""
+    # SNID - mock templates for now
     data_mean = np.mean(deserialized.flux.value)
-    filename = '/home/tomas/Softwares/tests/pysnid/l1_obs_joined_87178841_snid.h5'
-    snidres = get_pysnid_results(filename)
-    for i in range(1, 4):
-        model_df = snidres.get_modeldata(i, fluxcorr=True)
-        model_wave = model_df.wavelength.values
-        model_flux = model_df.flux.values
-        # normalise back
-        model_flux /= 1.05
-        model_flux *= data_mean
-        
-        temp_info = snidres.results.iloc[i]
-        fig.add_trace(go.Scatter(
-            x=model_wave,
-            y=model_flux,
-            name=f"{i}. {temp_info.sn}<br>{temp_info.type} (SNID)",
-            hovertemplate=f'Name: {temp_info.sn}<br>Type: {temp_info.type}<br>Phase: {temp_info.age} d<br>Wave.:%{{x}}',
-            showlegend=True,
-            visible='legendonly',
-        ))
+    pysnid_file = '/home/tomas/Softwares/tests/pysnid/l1_obs_joined_87178841_snid.h5'
+    fig = add_snid_templates(pysnid_file,
+                             deserialized.wavelength.value, 
+                             deserialized.flux.value, 
+                             fig, 
+                             n=3
+                             )
     
     # NGSF - mock templates for now
-    temp_waves = [deserialized.wavelength.value[::10].copy(),
-                  deserialized.wavelength.value[::30].copy(),
-                  ]
-    temp_fluxes = [deserialized.flux.value[::10].copy(),
-                   deserialized.flux.value[::30].copy(),
-                   ]
-        
-    for i, (wave, flux) in enumerate(zip(temp_waves, temp_fluxes)):
-        fig.add_trace(go.Scatter(
-            x=wave,
-            y=flux,
-            name=f"Temp{i} (NGSF)", 
-            hovertemplate=f'Template: Temp{i}<br>Phase: -10 d<br>Subtype: weird SN<br>Wave.:%{{x}}',
-            showlegend=True,
-            visible='legendonly',
-        ))
-    #"""
-
+    ngsf_file = '/home/tomas/Softwares/tests/ngsf/l1_obs_joined_87178841.csv'
+    fig = add_ngsf_templates(ngsf_file, 
+                             deserialized.wavelength.value, 
+                             deserialized.flux.value, 
+                             fig, 
+                             n=3
+                             )
+    
     fig.update_layout(autosize=True, 
                       xaxis_title='Observed Wavelength (Å)',
                       yaxis_title='Flux (erg/s/cm²/Å)',
