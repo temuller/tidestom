@@ -1,8 +1,9 @@
 import warnings
 import numpy as np
+import pandas as pd
 from plotly import offline
 import plotly.graph_objs as go
-from datetime import datetime
+#from datetime import datetime
 from astropy.time import Time
 from django import template
 from django.conf import settings
@@ -11,10 +12,11 @@ from tom_dataproducts.models import DataProduct, ReducedDatum
 from guardian.shortcuts import get_objects_for_user
 from tom_dataproducts.processors.data_serializers import SpectrumSerializer
 
-from tidestom.settings import BROKERS
-lasair_token = BROKERS['LASAIR']['api_key']
 from .spectroscopy_settings import add_snid_templates, add_ngsf_templates
-from .photometry_settings import plot_lightcurves, fetch_ztf_lasair
+from .photometry_settings import plot_lightcurves, fetch_ztf_lasair, fetch_lsst_lasair
+from tidestom.settings import BROKERS
+lasair_ztf_token = BROKERS['LASAIR']['ztf_api_key']
+lasair_lsst_token = BROKERS['LASAIR']['ztf_api_key']
 
 register = template.Library()
 
@@ -57,7 +59,6 @@ def target_spectroscopy(context, target, dataproduct=None):
     
     # add templates - best matches
     # SNID - mock templates for now
-    data_mean = np.mean(deserialized.flux.value)
     pysnid_file = '/home/tomas/Softwares/tests/pysnid/l1_obs_joined_87178841_snid.h5'
     fig = add_snid_templates(pysnid_file,
                              deserialized.wavelength.value, 
@@ -100,17 +101,25 @@ def target_photometry(context, target, dataproduct=None):
     Renders a photometry plot for a ``Target``. If a ``DataProduct`` is specified, it will only render a plot with
     that photometry.
     """
-    # check if the Lasair's API key is set
-    if lasair_token is None or lasair_token == "":
-        warnings.warn("Warning: Lasair API key not set!", UserWarning)
-        return {'target': target}
-    
-    photometry = fetch_ztf_lasair(49.1384664, 44.9725084)  # ZTF25aacedrs for testing
-    #photometry = fetch_ztf_lasair(target.ra, target.dec)
-    if photometry is None:
+    # check if the Lasair's API keys are set
+    if lasair_ztf_token is None or lasair_ztf_token == "":
+        warnings.warn("Warning: Lasair ZTF key not set!", UserWarning)
+        ztf_photometry = None
+    else:
+        ztf_photometry = fetch_ztf_lasair(49.1384664, 44.9725084)  # ZTF25aacedrs for testing
+        #ztf_photometry = fetch_ztf_lasair(target.ra, target.dec)
+    if lasair_lsst_token is None or lasair_lsst_token == "":
+        warnings.warn("Warning: Lasair LSST key not set!", UserWarning)
+        lsst_photometry = None
+    else:
+        #lsst_photometry = fetch_lsst_lasair(51.358273, -27.692442)  # LSST placeholder
+        #lsst_photometry = fetch_lsst_lasair(target.ra, target.dec)
+        lsst_photometry = None
+    if (ztf_photometry is None) & (lsst_photometry is None):
         return {'target': target}
     
     # plot photometry
+    photometry = pd.concat([ztf_photometry, lsst_photometry])
     fig = plot_lightcurves(photometry)
     
     # add epochs with spectra

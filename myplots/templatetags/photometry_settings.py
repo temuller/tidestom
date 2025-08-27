@@ -7,8 +7,10 @@ import plotly.graph_objects as go
 
 from lasair import lasair_client
 from tidestom.settings import BROKERS
-lasair_token = BROKERS['LASAIR']['api_key']
-lasair_api_url = "https://lasair-ztf.lsst.ac.uk/api"
+lasair_ztf_token = BROKERS['LASAIR']['ztf_api_key']
+lasair_lsst_token = BROKERS['LASAIR']['lsst_api_key']
+lasair_ztf_url = "https://lasair-ztf.lsst.ac.uk"
+lasair_lsst_url = "https://lasair-lsst.lsst.ac.uk"
 
 ##########
 # Lasair #
@@ -46,19 +48,17 @@ def find_ztfname_lasair(ra: float, dec: float) -> str | None:
     ztfname: ZTF internal name or 'None' if not found.
     """
     # query objects
-    if not is_site_up("https://lasair-ztf.lsst.ac.uk/"):
+    if not is_site_up(lasair_ztf_url):
         return None
-    lasair = lasair_client(lasair_token, endpoint = lasair_api_url)
-    objects_list = lasair.cone(ra, dec)
-    if len(objects_list) == 0:
-        return None
-    # get the object with the minimum separation
-    separations = [obj_dict['separation'] for obj_dict in objects_list]
-    id_target = np.argmin(separations)
-    ztfname = objects_list[id_target]['object']
+    lasair = lasair_client(lasair_ztf_token, endpoint = lasair_ztf_url + '/api')
+    result = lasair.cone(ra, dec, requestType='nearest')
+    if 'object' in result:
+        ztfname = result['object']
+    else:
+        ztfname = None
     return ztfname
     
-def fetch_ztf_lasair(ra: float, dec: float, name: str=None) -> pd.DataFrame:
+def fetch_ztf_lasair(ra: float, dec: float, name: str = None) -> pd.DataFrame:
     """
     Fetches the ZTF light curve of a target from the Lasair broker.
     
@@ -66,6 +66,7 @@ def fetch_ztf_lasair(ra: float, dec: float, name: str=None) -> pd.DataFrame:
     ----------
     ra: right ascension in degrees.
     dec: declination in degrees.
+    name: target's survey name.
     
     Returns
     -------
@@ -75,16 +76,16 @@ def fetch_ztf_lasair(ra: float, dec: float, name: str=None) -> pd.DataFrame:
     if name is None:
         ztfname = find_ztfname_lasair(ra, dec)
     elif name.startswith("ZTF"):
-        ztfname = find_ztfname_lasair(ra, dec)
+        ztfname = name
     else:
         ztfname = name
     if ztfname is None:
         return None
         
     # query photometry from Lasair
-    if not is_site_up("https://lasair-ztf.lsst.ac.uk/"):
+    if not is_site_up(lasair_ztf_url):
         return None
-    lasair = lasair_client(lasair_token, endpoint = lasair_api_url)
+    lasair = lasair_client(lasair_ztf_token, endpoint = lasair_ztf_url + '/api')
     target_info = lasair.lightcurves([ztfname])
     phot_list = target_info[0]['candidates']
     det_list = []  # detections
@@ -121,6 +122,96 @@ def fetch_ztf_lasair(ra: float, dec: float, name: str=None) -> pd.DataFrame:
     ztf_df.sort_values(['filter', 'mjd'], inplace=True)
     ztf_df = ztf_df[['filter', 'mjd', 'mag', 'mag_err', 'upper_mag']]
     return ztf_df
+
+def find_lsstname_lasair(ra: float, dec: float) -> str | None:
+    """Finds the nearest LSST target from the given coordinates.
+
+    The objects are queried from Lasair.
+
+    Parameters
+    ----------
+    ra: right ascension in degrees.
+    dec: declination in degrees.
+
+    Returns
+    -------
+    lsstname: LSST internal name or 'None' if not found.
+    """
+    # query objects
+    if not is_site_up(lasair_lsst_url):
+        return None
+    lasair = lasair_client(lasair_lsst_token, endpoint = lasair_lsst_url + '/api')
+    result = lasair.cone(ra, dec, requestType='nearest')
+    if 'nearest' in result:
+        lsstname = result['nearest']['object']
+    else:
+        lsstname = None
+    return lsstname
+    
+def fetch_lsst_lasair(ra: float, dec: float, name: str = None) -> pd.DataFrame:
+    """
+    Fetches the LSST light curve of a target from the Lasair broker.
+    
+    Parameters
+    ----------
+    ra: right ascension in degrees.
+    dec: declination in degrees.
+    name: target's survey name.
+    
+    Returns
+    -------
+    lsst_df: LSST light curve.
+    """
+    # get name of target
+    if name is None:
+        lsstname = find_lsstname_lasair(ra, dec)
+    elif name.startswith("LSST"):
+        lsstname = name
+    else:
+        lsstname = name
+    if lsstname is None:
+        return None
+        
+    # query photometry from Lasair
+    if not is_site_up(lasair_lsst_url):
+        return None
+    lasair = lasair_client(lasair_lsst_token, endpoint = lasair_lsst_url + '/api')
+    target_info = lasair.lightcurves([lsstname])
+    phot_list = target_info[0]['candidates']
+    det_list = []  # detections
+    nondet_list = []  #non-detections
+    # convert to dataframe
+    for phot_dict in phot_list:
+        # convert values into list to convert to dataframe
+        phot_dict = {key:[value] for key, value in phot_dict.items()}
+        phot_df = pd.DataFrame(phot_dict)
+        if 'magpsf' in phot_dict.keys():
+            det_list.append(phot_df)
+        else:
+            nondet_list.append(phot_df)
+    with warnings.catch_warnings():
+        # ignore annoying pandas future warning
+        warnings.simplefilter("ignore")
+        det_df = pd.concat(det_list)
+        nondet_df = pd.concat(nondet_list)
+    lsst_df = pd.concat([det_df, nondet_df])  # for non detection use diffmaglim
+    jds = Time(lsst_df['jd'].values, format='jd')
+    lsst_df['mjd'] = jds.mjd
+    
+    # rename columns
+    lsst_df.rename(columns={'fid':'filter', 
+                           'magpsf':'mag', 
+                           'sigmapsf':'mag_err',
+                           'diffmaglim':'upper_mag'
+                          }, 
+                  inplace=True)
+    # Replace photometric filter numbers with human-readable names
+    filter_dict = {i:f'lsst_{band}' for i, band in enumerate('ugrizy')}
+    lsst_df['filter'] = [filter_dict[fid] for fid in lsst_df['filter']]
+    # Sort the table on filter and time:
+    lsst_df.sort_values(['filter', 'mjd'], inplace=True)
+    lsst_df = lsst_df[['filter', 'mjd', 'mag', 'mag_err', 'upper_mag']]
+    return lsst_df
 
 ############
 # Plotting #
@@ -277,14 +368,8 @@ def plot_lightcurves(photometry: pd.DataFrame) -> go.Figure:
     fig: plot figure.
     """
     colour_dict = {"ztf_g":"green", "ztf_r":"red", "ztf_i":"gold",
-                   "gaia_G":"purple",
-                   "atlas_c":"cyan", "atlas_o":"orange",
-                   "neowise_W1":"navy", "neowise_W2":"darkred", 
-                   "neowise_W3":"indigo", "neowise_W4":"darkslategrey",
-                   "tess":"black",
-                   "goto_L":"purple",
-                   "ps1_g":"green", "ps1_r":"red", "ps1_i":"gold",
-                   "clear(VegaMag)":"skyblue",
+                   "lsst_g":"limegreen", "lsst_r":"firebrick", "lsst_i":"darkgoldenrod",
+                   "lsst_u":"purple", "lsst_z":"pink", "lsst_y":"grey",
                   }
     # add extra columns for displaying purposes
     photometry["Filter"] = photometry["filter"].values

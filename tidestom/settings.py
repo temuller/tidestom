@@ -308,7 +308,9 @@ BROKERS = {
         'bot_name': '',
     },
     'LASAIR': {
-        'api_key': os.environ.get('LASAIR_API_KEY'),
+        'api_key': '',  # needed by tom toolkit, but not used for TiDES
+        'ztf_api_key': os.environ.get('LASAIR_ZTF_KEY'),
+        'lsst_api_key': os.environ.get('LASAIR_LSST_KEY'),
     }
 }
 
