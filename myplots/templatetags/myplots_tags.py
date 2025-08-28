@@ -1,4 +1,5 @@
 import warnings
+import numpy as np
 from plotly import offline
 import plotly.graph_objs as go
 from datetime import datetime
@@ -12,6 +13,7 @@ from tom_dataproducts.processors.data_serializers import SpectrumSerializer
 
 from tidestom.settings import BROKERS
 lasair_token = BROKERS['LASAIR']['api_key']
+from .spectroscopy_settings import add_snid_templates, add_ngsf_templates
 from .photometry_settings import plot_lightcurves, fetch_ztf_lasair
 
 register = template.Library()
@@ -30,30 +32,57 @@ def target_spectroscopy(context, target, dataproduct=None):
                                                        data_product_type=spectroscopy_data_type)
     if dataproduct:
         spectral_dataproducts = DataProduct.objects.get(data_product=dataproduct)
-
-    plot_data = []
     if settings.TARGET_PERMISSIONS_ONLY:
         datums = ReducedDatum.objects.filter(data_product__in=spectral_dataproducts)
     else:
         datums = get_objects_for_user(context['request'].user,
                                       'tom_dataproducts.view_reduceddatum',
                                       klass=ReducedDatum.objects.filter(data_product__in=spectral_dataproducts))
+    
+    # Create a figure
+    fig = go.Figure()
+    
+    # add spectra
     for datum in datums:
         deserialized = SpectrumSerializer().deserialize(datum.value)
-        plot_data.append(go.Scatter(
+        fig.add_trace(go.Scatter(
             x=deserialized.wavelength.value,
             y=deserialized.flux.value,
-            name=datetime.strftime(datum.timestamp, '%Y%m%d-%H:%M:%s')
+            #name=datetime.strftime(datum.timestamp, '%Y%m%d-%H:%M:%s'), 
+            #name=target.name, 
+            showlegend=False,
+            hoverinfo='skip',
+            line=dict(color="grey")
         ))
-    # Create a figure
-    fig = go.Figure(data=plot_data)
-
+    
+    # add templates - best matches
+    # SNID - mock templates for now
+    data_mean = np.mean(deserialized.flux.value)
+    pysnid_file = '/home/tomas/Softwares/tests/pysnid/l1_obs_joined_87178841_snid.h5'
+    fig = add_snid_templates(pysnid_file,
+                             deserialized.wavelength.value, 
+                             deserialized.flux.value, 
+                             fig, 
+                             n=3
+                             )
+    
+    # NGSF - mock templates for now
+    ngsf_file = '/home/tomas/Softwares/tests/ngsf/l1_obs_joined_87178841.csv'
+    fig = add_ngsf_templates(ngsf_file, 
+                             deserialized.wavelength.value, 
+                             deserialized.flux.value, 
+                             fig, 
+                             n=3
+                             )
+    
     fig.update_layout(autosize=True, 
-                      xaxis_title='Observed Wavelength [Å] ',
-                      yaxis_title='Flux',
+                      xaxis_title='Observed Wavelength (Å)',
+                      yaxis_title='Flux (erg/s/cm²/Å)',
                       xaxis = dict(showticklabels=True, ticks='outside', linewidth=2),
                       yaxis = dict(showticklabels=True, ticks='outside', linewidth=2),
-                      shapes=[])
+                      legend_title="Best Templates",
+                      showlegend=True,
+                      )
 
     return {
         'target': target,
@@ -78,6 +107,8 @@ def target_photometry(context, target, dataproduct=None):
     
     photometry = fetch_ztf_lasair(49.1384664, 44.9725084)  # ZTF25aacedrs for testing
     #photometry = fetch_ztf_lasair(target.ra, target.dec)
+    if photometry is None:
+        return {'target': target}
     
     # plot photometry
     fig = plot_lightcurves(photometry)
