@@ -25,10 +25,31 @@ def is_site_up(url: str) -> bool:
     bool: whether is up (True) or down (False)
     """
     try:
-        response = requests.get(url, timeout=3)
-        return response.status_code == 200
-    except requests.exceptions.RequestException:
-        print(f'{url} is down!')
+        response = requests.get(url, timeout=5)
+        content = response.text.lower()
+
+        # Look for maintenance / offline messages
+        downtime_keywords = ["offline", "down", "maintenance", "not available"]
+
+        if response.status_code == 200:
+            if any(word in content for word in downtime_keywords):
+                print(f"{url} is DOWN ❌ (Maintenance page detected)")
+                return False
+            else:
+                print(f"{url} is UP ✅ (Status: {response.status_code})")
+                return True
+        else:
+            print(f"{url} is reachable but returned status {response.status_code} ⚠️")
+            return False
+
+    except requests.ConnectionError:
+        print(f"{url} is DOWN ❌ (Connection error)")
+        return False
+    except requests.Timeout:
+        print(f"{url} is DOWN ❌ (Timeout)")
+        return False
+    except requests.RequestException as e:
+        print(f"{url} is DOWN ❌ (Error: {e})")
         return False
     
 def find_ztfname_lasair(ra: float, dec: float) -> str | None:
